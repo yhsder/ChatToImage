@@ -1,0 +1,11 @@
+{
+  "managed": {
+    "copy-editing": "symlink",
+    "copywriting": "symlink",
+    "cro": "symlink",
+    "marketing-psychology": "symlink",
+    "pricing": "symlink",
+    "product-marketing": "symlink"
+  },
+  "updated_at": "2026-08-20T17:16:53.264332684+08:00"
+}

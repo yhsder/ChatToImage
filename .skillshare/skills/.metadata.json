@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "entries": {
+    "copy-editing": {
+      "source": "github.com/coreyhaines31/marketingskills/skills/copy-editing",
+      "type": "github-subdir",
+      "installed_at": "2026-08-20T17:16:49.385011704+08:00",
+      "repo_url": "https://github.com/coreyhaines31/marketingskills.git",
+      "subdir": "skills/copy-editing",
+      "version": "c6ea128",
+      "tree_hash": "4d29a5bcbbf92f159f713c17db9d3d0bf6217b48",
+      "file_hashes": {
+        "SKILL.md": "sha256:9b5a20be3dc5513c8f0b4f4c4960857e4d28ed83698a5b33c8dde9dc75a47bf6",
+        "evals/evals.json": "sha256:49881baea09fd93a03da69ab249a7d37a93b1fa015debce320b5861c606593ef",
+        "references/checklist.md": "sha256:db143b969b45b0933fe6eb772992890d1472d036a6c887fc98665e4fb48da43c",
+        "references/content-refresh.md": "sha256:8a3a2d301bb2b8b2a780f5bef43093ab42295041b2fea2a9caeca2421ef3c79b",
+        "references/plain-english-alternatives.md": "sha256:df4f820d4c63ae8a517c64a243c101658352cd07d002355bf3c97de0a00f3775"
+      }
+    },
+    "copywriting": {
+      "source": "github.com/coreyhaines31/marketingskills/skills/copywriting",
+      "type": "github-subdir",
+      "installed_at": "2026-08-20T17:16:49.347699246+08:00",
+      "repo_url": "https://github.com/coreyhaines31/marketingskills.git",
+      "subdir": "skills/copywriting",
+      "version": "c6ea128",
+      "tree_hash": "13d216690bbbcb88e2fee9f3e2d8f5a5bbc4b338",
+      "file_hashes": {
+        "SKILL.md": "sha256:ecdaabca28863d1472f79ba637842fdf4ac2fd9acc92b215ab7f152e757b2a33",
+        "evals/evals.json": "sha256:1cd7c27538b91d46c2b2cd007f2064922a4874ece1f2851b4bd844fe6f78a3e6",
+        "references/copy-frameworks.md": "sha256:f387b6ed4b510efa9f0d3c459f4898971c8b0176e8c34185040cb264eca50186",
+        "references/natural-transitions.md": "sha256:4ff23f8943af2f65b072f26f1c53ce55f19cc26d7be211c11cae8e34b43e859f"
+      }
+    },
+    "cro": {
+      "source": "github.com/coreyhaines31/marketingskills/skills/cro",
+      "type": "github-subdir",
+      "installed_at": "2026-08-20T17:16:49.425318872+08:00",
+      "repo_url": "https://github.com/coreyhaines31/marketingskills.git",
+      "subdir": "skills/cro",
+      "version": "c6ea128",
+      "tree_hash": "add272bb1b29f8721994e5dcf307ffe6018d98dc",
+      "file_hashes": {
+        "SKILL.md": "sha256:199016bec3b44bc6a7507b111b6028f6550cc852cd54c7d0df789f15d6f814c4",
+        "evals/evals.json": "sha256:62f3003602836e2b49d797ca582e7703629a6b07b131eb77b51b2bb39fe65775",
+        "references/experiments.md": "sha256:bbcc356c0af36cfaa4556bf9e929deac30c65cafb37f909d7c51d4777fe254ca",
+        "references/form.md": "sha256:e3115b0fdfb3968915b8e3acdc32a6e5f1d2c6a335ebbed25bee9b601ec573d7"
+      }
+    },
+    "marketing-psychology": {
+      "source": "github.com/coreyhaines31/marketingskills/skills/marketing-psychology",
+      "type": "github-subdir",
+      "installed_at": "2026-08-20T17:16:49.454925306+08:00",
+      "repo_url": "https://github.com/coreyhaines31/marketingskills.git",
+      "subdir": "skills/marketing-psychology",
+      "version": "c6ea128",
+      "tree_hash": "0a527bd6cff5ab2fe2b5a60b97d86013a385326a",
+      "file_hashes": {
+        "SKILL.md": "sha256:573bbe4f6e300e7fb75299e314f56e26382d284782caa2ae0e0f33eb2e646548",
+        "evals/evals.json": "sha256:c3b7d15b3008eeb493796e21affd6a0c6e7ce312f9cfeffcdef467857903c733"
+      }
+    },
+    "pricing": {
+      "source": "github.com/coreyhaines31/marketingskills/skills/pricing",
+      "type": "github-subdir",
+      "installed_at": "2026-08-20T17:16:49.494183736+08:00",
+      "repo_url": "https://github.com/coreyhaines31/marketingskills.git",
+      "subdir": "skills/pricing",
+      "version": "c6ea128",
+      "tree_hash": "8abc27d9f616a1a0342d46d642fef8bf5ef5dce6",
+      "file_hashes": {
+        "SKILL.md": "sha256:80aaa7babefecc8f14078788344e4df7c78c15f91af885b79be7d3c2599ad9de",
+        "evals/evals.json": "sha256:600e8ff8e6a4d711db5fe6f527c47ca5992fe099e0e7d35076d8efbcce9d8114",
+        "references/pricing-page-teardown.md": "sha256:850b018a6b224bc9bd4149edb3f1cbae41991ba6ef1d9efb616dba9328790c4b",
+        "references/research-methods.md": "sha256:b6aab09860dbab2f11d69cc9c179cc7f6e1a100ede28e5c49b59070a2caaeb15",
+        "references/tier-structure.md": "sha256:b59910d37cceb74484f28b065963daa60f5c4fb1ffc36a0584d0f3cad11f3e30"
+      }
+    },
+    "product-marketing": {
+      "source": "github.com/coreyhaines31/marketingskills/skills/product-marketing",
+      "type": "github-subdir",
+      "installed_at": "2026-08-20T17:16:49.315549368+08:00",
+      "repo_url": "https://github.com/coreyhaines31/marketingskills.git",
+      "subdir": "skills/product-marketing",
+      "version": "c6ea128",
+      "tree_hash": "1bca9cf1bf416c4809f06370aa5503b067d270ca",
+      "file_hashes": {
+        "SKILL.md": "sha256:6dfd6bd485f62448385844cb9eceefcee0977c843d7a1c9e6077590d4e19d1ec",
+        "evals/evals.json": "sha256:0c6599b88f50ec1be91096a36ba6c5a15cf8312151394e3469e5ddb991b19afb"
+      }
+    }
+  }
+}

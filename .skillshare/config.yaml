@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/runkids/skillshare/main/schemas/project-config.schema.json
+targets:
+  - claude
+skills:
+  - name: copy-editing
+    source: github.com/coreyhaines31/marketingskills/skills/copy-editing
+  - name: copywriting
+    source: github.com/coreyhaines31/marketingskills/skills/copywriting
+  - name: cro
+    source: github.com/coreyhaines31/marketingskills/skills/cro
+  - name: marketing-psychology
+    source: github.com/coreyhaines31/marketingskills/skills/marketing-psychology
+  - name: pricing
+    source: github.com/coreyhaines31/marketingskills/skills/pricing
+  - name: product-marketing
+    source: github.com/coreyhaines31/marketingskills/skills/product-marketing
+ignore:
+  - .DS_Store
+  - .git/
+  - __pycache__/
+audit:
+  block_threshold: CRITICAL
