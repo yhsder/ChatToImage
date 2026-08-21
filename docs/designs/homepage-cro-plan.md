@@ -1,8 +1,8 @@
 # Homepage CRO Plan
 
-**Status:** APPROVED  
-**Last updated:** 2026-08-20  
-**Page:** Homepage `/`  
+**Status:** COPY REVIEWED — PENDING PRODUCT VERIFICATION
+**Last updated:** 2026-08-21
+**Page:** Homepage `/`
 **Traffic source:** United States English Google organic search
 
 ## Conversion Strategy
@@ -34,7 +34,17 @@ These CRO decisions supersede the section order and empty result state shown in 
 
 ### 1. Header
 
-Include:
+#### Approved page copy
+
+> **Logo:** ChatToImage
+>
+> **Navigation:** Examples · How It Works · Pricing · FAQ
+>
+> **Account action:** Sign In
+
+The header keeps one quiet account action and lets the generator remain the page's primary action. This applies Hick's Law by avoiding competing CTAs.
+
+Implementation requirements:
 
 - ChatToImage logo
 - Examples
@@ -52,9 +62,31 @@ Requirements:
 
 ### 2. Hero and Generator
 
-The Hero and generator form one above-the-fold experience. Use the approved copy from `docs/copy/homepage-hero.md`.
+The Hero and generator form one above-the-fold experience. The following copy is reproduced from the reviewed source at `docs/copy/homepage-hero.md`; keep the two documents synchronized if it changes.
 
-The generator includes:
+#### Approved page copy
+
+> **Headline**
+>
+> Chat to Image: Turn Text Into AI Images
+>
+> **Subheadline**
+>
+> Describe what you want to see in plain language, choose an aspect ratio, then generate and download your image.
+>
+> **Primary CTA:** Generate My Image
+>
+> **CTA supporting copy:** Create a free account to get `{free_credit_amount}` credits. Failed generations won’t cost you credits.
+>
+> **Prompt label:** Describe your image
+>
+> **Prompt helper text:** Include the subject, setting, lighting, and style you want.
+>
+> **Prompt placeholder:** A tiny astronaut tending a glowing garden on the moon, cinematic lighting, detailed digital art
+
+This puts the tool and immediate reward in the first viewport, reducing activation energy and satisfying present bias.
+
+Generator requirements:
 
 - Prompt textarea
 - Prompt helper text
@@ -74,11 +106,43 @@ Requirements:
 
 ### 3. Hero Result State
 
-Before generation, show a real, reproducible image labelled:
+#### Approved page copy
 
-> Example output
+> **Initial label:** Example output
+>
+> **Prompt label:** Prompt used
+>
+> **Prompt value:** `{verified_example_prompt}`
+>
+> **Initial action:** Try This Prompt
+>
+> **Loading title:** Creating your image
+>
+> **Loading message:** We’re creating your image. Keep this page open while it finishes.
+>
+> **Success title:** Your image is ready
+>
+> **Success actions:** Download Image · Generate Another
+>
+> **Retryable error title:** We couldn’t complete this image
+>
+> **Retryable error message:** This attempt won’t cost you any credits. Try again now or adjust your prompt.
+>
+> **Retryable error actions:** Try Again · Edit Prompt
+>
+> **Timeout title:** This image took too long
+>
+> **Timeout message:** This attempt won’t cost you any credits. Try the same prompt again when you’re ready.
+>
+> **Timeout action:** Try Again
+>
+> **Content rejection title:** This prompt can’t be generated
+>
+> **Content rejection message:** This attempt won’t cost you any credits. Revise your prompt and try again.
+>
+> **Content rejection action:** Edit Prompt
 
-Show its source prompt and provide a `Try this prompt` action. After submission, replace the example with an explicit loading state and then the generated result.
+The labelled example makes the outcome easy to imagine through the availability heuristic. Explicit credit protection and recovery actions use ethical risk reversal to reduce regret aversion.
 
 The result area must support:
 
@@ -92,13 +156,19 @@ The result area must support:
 
 ### 4. Examples
 
-**Recommended heading:**
+#### Approved page copy
 
-> See What You Can Create
+> **Heading:** See What You Can Create
+>
+> **Supporting copy:** Explore eight images made with this generator—and see the exact prompt behind each one. Browse product shots, portraits, posters, fantasy scenes, and more.
+>
+> **Prompt label:** Prompt used
+>
+> **Card action:** Try This Prompt
+>
+> **Card categories:** Product · Portrait · Fantasy · Illustration · Poster · Interior · Nature · Complex Scene
 
-**Supporting copy:**
-
-> Explore images generated from real prompts using the same AI image generator.
+Real outputs and visible prompts substitute product evidence for unavailable testimonials. The `Try This Prompt` action also lowers activation energy by giving visitors a useful starting point.
 
 Requirements:
 
@@ -111,51 +181,59 @@ Requirements:
 
 ### 5. How It Works
 
-**Heading:**
+#### Approved page copy
 
-> From Prompt to Picture in Three Steps
+> **Heading:** From Prompt to Picture in Three Steps
+>
+> **Supporting copy:** Go from a plain-language prompt to a downloadable image in three simple steps.
+>
+> **Step 1 — Describe:** Write what you want to see in plain language. Add the subject, setting, lighting, and style when those details matter.
+>
+> **Step 2 — Generate:** Choose an aspect ratio, then generate a new image from your prompt.
+>
+> **Step 3 — Download:** Save the result you like, or adjust your prompt and generate a new version.
+>
+> **Section CTA:** Try It Now
 
-Steps:
-
-1. **Describe** — Write what you want to see in plain language.
-2. **Generate** — Choose a style and aspect ratio, then create your image.
-3. **Download** — Save your result or adjust the prompt and try again.
-
-End with `Try It Now`, which scrolls to and focuses the Hero prompt instead of opening authentication directly.
+Three concrete steps use chunking to increase perceived ability in the BJ Fogg Behavior Model. The CTA scrolls to and focuses the Hero prompt instead of opening authentication directly.
 
 ### 6. Product Benefits
 
 Use three conversion-focused benefits instead of a generic feature grid.
 
-**Section heading:**
+#### Approved page copy
 
-> Simple From Prompt to Download
+> **Heading:** From Prompt to Download—Without the Learning Curve
+>
+> **Supporting copy:** Create an image without learning complex prompt syntax or digging through dozens of settings.
+>
+> **Describe It Naturally:** Describe the image you want in everyday words. Add the subject, setting, lighting, and style when those details matter.
+>
+> **Just the Controls That Matter:** Choose an aspect ratio without navigating a professional design workflow or a wall of model settings.
+>
+> **Credits Protected on Failed Attempts:** Failed generations won’t reduce your final credit balance.
 
-**Plain Language In**
-
-> Describe the image you want without learning complex prompt syntax.
-
-**Only the Controls You Need**
-
-> Choose a style and aspect ratio without navigating a professional workflow.
-
-**Credits You Can Trust**
-
-> Failed, rejected, or timed-out generations won’t reduce your credit balance.
+These benefits follow Jobs to Be Done: they focus on reaching a usable image with less learning, fewer decisions, and lower financial risk.
 
 Do not claim superior image quality, speed, price, or unlimited usage without supporting evidence.
 
 ### 7. Compact Pricing
 
-**Heading:**
+#### Approved page copy
 
-> Start Free. Choose How You Pay for More.
+> **Heading:** Start Free. Choose How You Pay for More.
+>
+> **Supporting copy:** Create a free account and get `{free_credit_amount}` credits to try the generator. No payment method is required.
+>
+> **Free to Try:** Use your signup credits to create your first images before choosing a paid option.
+>
+> **Subscription:** Generate regularly with a recurring plan and a fresh credit allowance each billing period.
+>
+> **One-Time Credit Pack:** Need images only now and then? Buy credits once without starting a subscription.
+>
+> **Section CTA:** Compare Plans and Credit Packs
 
-Explain the three paths without reproducing the complete pricing table:
-
-- Free credits for new users
-- Subscription for ongoing generation
-- One-time credit pack for occasional generation
+The free starting point uses the zero-price effect and reciprocity, while two clearly separated paid paths reduce choice anxiety. The wording avoids artificial urgency and makes the recurring commitment explicit.
 
 Requirements:
 
@@ -166,47 +244,71 @@ Requirements:
 
 ### 8. FAQ
 
-Answer these objections:
+#### Approved page copy
 
-1. What is chat to image?
-2. Can I generate images for free?
-3. Do I need to write complex prompts?
-4. What happens if a generation fails?
-5. Can I use generated images commercially?
-6. How long are my prompts and images stored?
-7. Is ChatToImage a conversational image editor?
+> **What is chat to image?**
+>
+> Chat to image means describing a picture in natural language and using AI to create it. With ChatToImage, enter one prompt, choose an aspect ratio, and generate a downloadable image.
+>
+> **Can I generate images for free?**
+>
+> Yes. New accounts receive `{free_credit_amount}` credits, with no payment method required. When those credits run out, you can choose a subscription or buy a one-time credit pack.
+>
+> **Does ChatToImage support conversational image editing?**
+>
+> ChatToImage accepts natural-language prompts, but each submission is a separate image request. It does not remember earlier messages or revise images from conversation history.
+>
+> **What happens if a generation fails?**
+>
+> Failed generations do not reduce your final credit balance. We show what happened and whether you can retry the same prompt or need to revise it.
+>
+> **Can I use generated images commercially?**
+>
+> Commercial use depends on the model license, our Terms of Service, and any rights that apply to your prompt and output. Review the current terms before using an image in paid work, advertising, merchandise, or client projects.
+>
+> **Who is ChatToImage for?**
+>
+> ChatToImage is for anyone who wants a direct path from a plain-language prompt to a downloadable image without a complex design workflow. It is not designed for multi-turn editing, batch production, or model comparison.
 
-Commercial-use wording must follow the selected provider’s confirmed license. Storage wording must match the final privacy policy and provider retention requirements.
+The FAQ answers price, effort, failure, rights, and product-boundary objections at the point of decision. The candid fit statement uses the Pratfall Effect without diminishing the product's core job.
+
+Commercial-use wording must follow the selected provider’s confirmed license. Add a data-retention FAQ only after the retention period, deletion behavior, privacy policy, and provider requirements are implemented and verified.
 
 ### 9. Final CTA
 
-**Heading:**
+#### Approved page copy
 
-> Create Your First AI Image
+> **Heading:** Create Your First AI Image
+>
+> **Supporting copy:** Describe your idea, generate your first image with free credits, and download the result you like.
+>
+> **CTA:** Generate My Image
+>
+> **CTA supporting copy:** Not sure what to write? Start with one of the prompts above.
 
-**Supporting copy:**
-
-> Describe your idea in plain language and start with free credits.
-
-**CTA:**
-
-> Generate My Image
+The repeated action uses mere exposure and consistency, while prompt reuse removes the last blank-page barrier.
 
 The CTA scrolls to and focuses the Hero prompt. It does not send a visitor directly to signup.
 
 ### 10. Footer
 
-Include:
+#### Approved page copy
 
-- Pricing
-- Privacy Policy
-- Terms of Service
-- Refund Policy
-- Content Policy
-- Support
-- Sign In
+> **Brand:** ChatToImage
+>
+> **Brand line:** Turn plain-language ideas into downloadable AI images.
+>
+> **Product links:** Examples · How It Works · Pricing · FAQ
+>
+> **Legal links:** Privacy Policy · Terms of Service
+>
+> **Account link:** Sign In
+>
+> **Copyright:** © `{current_year}` ChatToImage. All rights reserved.
 
-Do not show the Blog or a floating support widget in the SEO MVP homepage. Support remains accessible from the footer and relevant error states.
+The concise footer ends with access to pricing, policies, and an existing account, reinforcing transparency at the page's final decision point.
+
+Do not show the Blog or a floating support widget in the SEO MVP homepage.
 
 ## Trust Strategy
 
@@ -216,8 +318,9 @@ Use product evidence instead:
 
 - Reproducible examples with source prompts
 - Transparent free-credit disclosure
-- No net credit consumption for unsuccessful generation
-- Clear commercial-use and data-retention answers
+- Verified credit reversal for every failure state promised on the page
+- Clear commercial-use guidance
+- Data-retention guidance only after the policy and deletion behavior are implemented
 - Explicit error reasons and recovery actions
 
 Only add customer or performance proof after real data exists and can be verified.
