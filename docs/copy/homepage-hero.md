@@ -1,8 +1,8 @@
 # Homepage Hero Copy
 
-**Status:** Approved  
-**Last updated:** 2026-08-20  
-**Page:** Homepage `/`  
+**Status:** Copy reviewed — pending launch values
+**Last updated:** 2026-08-21
+**Page:** Homepage `/`
 **Primary keyword:** `chat to image`
 
 ## Recommended Copy
@@ -13,7 +13,7 @@
 
 ### Subheadline
 
-> Describe what you want to see in plain language. Choose a style and aspect ratio, then generate and download your image online.
+> Describe what you want to see in plain language, choose an aspect ratio, then generate and download your image.
 
 ### Primary CTA
 
@@ -21,7 +21,7 @@
 
 ### CTA Supporting Copy
 
-> Sign in to claim free credits. Failed generations won’t use your credits.
+> Create a free account to get `{free_credit_amount}` credits. Failed generations won’t cost you credits.
 
 ### Prompt Field
 
@@ -53,11 +53,12 @@ The recommended headline starts with the exact primary keyword and naturally cov
 
 **Meta description:**
 
-> Turn text into AI images online. Describe your idea, choose a style and aspect ratio, then generate and download your image with free credits.
+> Turn text into AI images online. Describe your idea, choose an aspect ratio, then generate and download your image with free credits.
 
 ## Usage Notes
 
 - Keep `Chat to Image` at the beginning of the H1.
 - Do not describe the product as a conversational or context-aware image editor.
 - Do not claim superior quality, speed, price, or unlimited free generation without supporting evidence.
+- Mention style controls only if they are available at launch.
 - Replace the free-credit wording if the final launch offer changes.
