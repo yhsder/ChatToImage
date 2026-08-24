@@ -20,6 +20,7 @@ import '@/styles/home.css';
  * See docs/designs/homepage-implementation-spec.md and docs/adr/0001-homepage-ui-shell.md.
  */
 function HomePage() {
+  const { year } = Route.useLoaderData();
   return (
     <div className="home-root">
       <HomeHeader />
@@ -32,7 +33,7 @@ function HomePage() {
         <HomeFAQ />
         <HomeFinalCta />
       </main>
-      <HomeFooter />
+      <HomeFooter year={year} />
     </div>
   );
 }
@@ -40,7 +41,7 @@ function HomePage() {
 export const Route = createFileRoute('/')({
   loader: () => {
     const locale = getLocale();
-    return { locale };
+    return { locale, year: new Date().getFullYear() };
   },
   head: ({ loaderData }) => {
     const locale = loaderData?.locale ?? 'en';

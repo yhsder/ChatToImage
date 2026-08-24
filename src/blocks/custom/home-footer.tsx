@@ -2,9 +2,7 @@ import { Link } from '@/core/i18n/navigation';
 import { m } from '@/paraglide/messages.js';
 import { HomeBrandMark } from '@/components/custom/home-brand-mark';
 
-export function HomeFooter() {
-  const year = new Date().getFullYear();
-
+export function HomeFooter({ year }: { year: number }) {
   return (
     <footer className="site-footer">
       <div className="shell">
