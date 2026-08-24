@@ -7,34 +7,33 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 
-const FAQ_KEYS = [
-  'stack',
-  'payment',
-  'database',
-  'customize',
-  'license',
-] as const;
+const FAQ_KEYS = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6'] as const;
 
 export function FAQ() {
   return (
-    <section id="faq" className="px-4 py-24 sm:py-32">
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-16 text-center">
-          <h2 className="font-serif text-4xl font-medium tracking-tight sm:text-5xl">
-            {m['landing.faq.title']()}
+    <section
+      id="faq"
+      className="chat-section border-b border-white/10 px-4 py-20 sm:py-28"
+    >
+      <div className="mx-auto max-w-4xl sm:px-2">
+        <div className="mb-10 text-center">
+          <p className="chat-eyebrow">{m['landing.nav.faq']()}</p>
+          <h2 className="mt-3 text-3xl font-bold tracking-[-0.035em] text-slate-50 sm:text-5xl">
+            {m['landing.chatFaq.title']()}
           </h2>
-          <p className="text-muted-foreground mt-5">
-            {m['landing.faq.description']()}
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-slate-400 sm:text-base">
+            {m['landing.chatFaq.description']()}
           </p>
         </div>
-        <Accordion className="w-full">
+
+        <Accordion className="rounded-2xl border border-white/10 bg-[#11141c] px-5 sm:px-7">
           {FAQ_KEYS.map((key) => (
-            <AccordionItem key={key} value={key}>
-              <AccordionTrigger className="cursor-pointer py-6 text-left text-base font-medium hover:no-underline">
-                {tDynamic(`landing.faq.${key}.question`)}
+            <AccordionItem key={key} value={key} className="border-white/10">
+              <AccordionTrigger className="py-5 text-left text-sm font-semibold text-slate-100 hover:no-underline sm:text-base">
+                {tDynamic(`landing.chatFaq.${key}`)}
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground pb-6 leading-relaxed">
-                {tDynamic(`landing.faq.${key}.answer`)}
+              <AccordionContent className="pb-5 text-sm leading-7 text-slate-400">
+                {tDynamic(`landing.chatFaq.a${key.slice(1)}`)}
               </AccordionContent>
             </AccordionItem>
           ))}

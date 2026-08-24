@@ -1,0 +1,427 @@
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
+import {
+  ArrowRight,
+  Check,
+  Download,
+  ImagePlus,
+  LoaderCircle,
+  LockKeyhole,
+  Sparkles,
+  WandSparkles,
+  Zap,
+} from 'lucide-react';
+
+import { useSession } from '@/core/auth/client';
+import { tDynamic } from '@/core/i18n/dynamic';
+import { Link } from '@/core/i18n/navigation';
+import { cn } from '@/lib/utils';
+import { m } from '@/paraglide/messages.js';
+
+export const EXAMPLE_PROMPT =
+  'A tiny astronaut tending a glowing garden on the moon, cinematic lighting, detailed digital art';
+
+const EXAMPLE_IMAGE = '/generated/moon-garden.png';
+
+type GeneratorStatus = 'example' | 'auth' | 'loading' | 'success' | 'failed';
+
+const RATIOS = [
+  { label: '1:1', className: 'aspect-square' },
+  { label: '9:16', className: 'aspect-[9/16]' },
+  { label: '16:9', className: 'aspect-[16/9]' },
+  { label: '3:2', className: 'aspect-[3/2]' },
+  { label: '2:3', className: 'aspect-[2/3]' },
+] as const;
+
+const QUALITIES = [
+  { label: 'standard', message: 'landing.chatImage.standard' },
+  { label: 'medium', message: 'landing.chatImage.medium' },
+  { label: 'high', message: 'landing.chatImage.high' },
+] as const;
+
+function focusGenerator() {
+  document.querySelector('#generator')?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start',
+  });
+  window.setTimeout(() => {
+    document.querySelector<HTMLTextAreaElement>('#image-prompt')?.focus();
+  }, 450);
+}
+
+export function focusChatToImageGenerator() {
+  focusGenerator();
+}
+
+export function requestPrompt(prompt: string) {
+  window.dispatchEvent(
+    new CustomEvent('chat-to-image:prompt', { detail: prompt })
+  );
+  focusGenerator();
+}
+
+export function ChatToImageGenerator() {
+  const { data: session } = useSession();
+  const [prompt, setPrompt] = useState(EXAMPLE_PROMPT);
+  const [ratio, setRatio] = useState('1:1');
+  const [quality, setQuality] = useState('standard');
+  const [status, setStatus] = useState<GeneratorStatus>('example');
+
+  const isBusy = status === 'loading';
+  const canGenerate = prompt.trim().length > 0 && !isBusy;
+  const resultTitle = useMemo(() => {
+    if (status === 'success') return m['landing.chatImage.ready_title']();
+    if (status === 'loading') return m['landing.chatImage.creating_title']();
+    return m['landing.chatImage.example_output']();
+  }, [status]);
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem('chat-to-image:generator');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as { prompt?: string; ratio?: string };
+        if (parsed.prompt) setPrompt(parsed.prompt);
+        if (
+          parsed.ratio &&
+          RATIOS.some((item) => item.label === parsed.ratio)
+        ) {
+          setRatio(parsed.ratio);
+        }
+      } catch {
+        sessionStorage.removeItem('chat-to-image:generator');
+      }
+    }
+
+    const handlePrompt = (event: Event) => {
+      const nextPrompt = (event as CustomEvent<string>).detail;
+      if (!nextPrompt) return;
+      setPrompt(nextPrompt);
+      setStatus('example');
+    };
+
+    window.addEventListener('chat-to-image:prompt', handlePrompt);
+    return () =>
+      window.removeEventListener('chat-to-image:prompt', handlePrompt);
+  }, []);
+
+  function handleGenerate() {
+    if (!canGenerate) return;
+
+    const state = JSON.stringify({ prompt, ratio });
+    sessionStorage.setItem('chat-to-image:generator', state);
+
+    if (!session?.user) {
+      setStatus('auth');
+      return;
+    }
+
+    setStatus('loading');
+    window.setTimeout(() => setStatus('success'), 1400);
+  }
+
+  function handleRetry() {
+    setStatus(session?.user ? 'loading' : 'auth');
+    if (session?.user) window.setTimeout(() => setStatus('success'), 1400);
+  }
+
+  return (
+    <section
+      id="generator"
+      className="chat-section relative overflow-hidden border-b border-white/10 pt-8 pb-20 sm:pt-12 sm:pb-28"
+    >
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(900px_420px_at_50%_0,rgba(250,204,66,0.14),transparent_70%)]" />
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl text-center">
+          <p className="chat-eyebrow">{m['landing.chatImage.eyebrow']()}</p>
+          <h1 className="mt-4 text-4xl font-black tracking-[-0.045em] text-slate-50 sm:text-6xl lg:text-7xl">
+            {m['landing.chatImage.title']()}
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-slate-400 sm:text-lg">
+            {m['landing.chatImage.subheadline']()}
+          </p>
+        </div>
+
+        <div className="mx-auto mt-10 max-w-4xl rounded-xl border border-white/10 bg-[#11141c] px-3 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.22)] sm:px-4">
+          <div className="flex items-center gap-3">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-amber-300/25 bg-amber-300/10 text-amber-300">
+              <Sparkles className="size-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold tracking-[0.16em] text-amber-300 uppercase">
+                {m['landing.chatImage.free_credits']()}
+              </p>
+              <p className="truncate text-xs text-slate-400 sm:text-sm">
+                {m['landing.chatImage.failure_reassurance']()}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(330px,0.9fr)_minmax(0,1.1fr)] lg:gap-5">
+          <div className="chat-surface relative overflow-hidden p-4 sm:p-5">
+            <div className="chat-surface-line" />
+            <div className="relative z-10 space-y-5">
+              <div>
+                <div className="mb-2 flex items-center justify-between">
+                  <label htmlFor="image-prompt" className="chat-label">
+                    <span className="chat-label-mark" />
+                    {m['landing.chatImage.prompt_label']()}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => requestPrompt(EXAMPLE_PROMPT)}
+                    className="inline-flex items-center gap-1.5 text-xs text-slate-400 transition hover:text-amber-300"
+                  >
+                    <WandSparkles className="size-3.5 text-amber-300/80" />
+                    {m['landing.chatImage.try_examples']()}
+                  </button>
+                </div>
+                <textarea
+                  id="image-prompt"
+                  value={prompt}
+                  onChange={(event) => setPrompt(event.target.value)}
+                  placeholder={m['landing.chatImage.prompt_placeholder']()}
+                  maxLength={5000}
+                  className="chat-input min-h-32 w-full resize-none"
+                />
+                <div className="mt-2 flex items-start justify-between gap-4 text-xs text-slate-500">
+                  <span>{m['landing.chatImage.prompt_helper']()}</span>
+                  <span className="shrink-0 tabular-nums">
+                    {prompt.length}/5000
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="chat-label">
+                    <span className="chat-label-mark" />
+                    {m['landing.chatImage.aspect_ratio']()}
+                  </span>
+                  <span className="rounded-full border border-white/10 bg-slate-950/60 px-2.5 py-1 text-[11px] text-slate-400">
+                    {m['landing.chatImage.standard']()}
+                  </span>
+                </div>
+                <div className="grid grid-cols-5 gap-1.5">
+                  {RATIOS.map((item) => {
+                    const selected = ratio === item.label;
+                    return (
+                      <button
+                        key={item.label}
+                        type="button"
+                        onClick={() => setRatio(item.label)}
+                        className={cn(
+                          'relative flex aspect-square min-w-0 flex-col items-center justify-center rounded-xl border px-1 text-center transition-all',
+                          selected
+                            ? 'border-amber-300 bg-amber-300/10 text-amber-100 shadow-[0_0_0_1px_rgba(250,204,66,0.2)]'
+                            : 'border-white/10 bg-slate-950/55 text-slate-400 hover:border-amber-300/40 hover:text-slate-200'
+                        )}
+                      >
+                        {selected && (
+                          <span className="absolute top-1.5 right-1.5 flex size-4 items-center justify-center rounded-full bg-amber-300 text-slate-950">
+                            <Check className="size-2.5" />
+                          </span>
+                        )}
+                        <span
+                          className={cn(
+                            'mb-1.5 block rounded border-2',
+                            item.className,
+                            selected
+                              ? 'border-amber-300 bg-amber-300/20'
+                              : 'border-slate-600 bg-slate-700/40'
+                          )}
+                          style={{ width: '1.1rem', maxHeight: '1.35rem' }}
+                        />
+                        <span className="text-[11px] font-medium">
+                          {item.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="chat-label">
+                    <span className="chat-label-mark" />
+                    {m['landing.chatImage.quality']()}
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    {m['landing.chatImage.credits']({ count: 2 })}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  {QUALITIES.map((item) => (
+                    <button
+                      key={item.label}
+                      type="button"
+                      onClick={() => setQuality(item.label)}
+                      className={cn(
+                        'chat-choice',
+                        quality === item.label && 'is-selected'
+                      )}
+                    >
+                      {tDynamic(item.message)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {status === 'auth' && (
+                <div className="rounded-xl border border-amber-300/25 bg-amber-300/10 p-3 text-sm text-amber-100">
+                  <div className="flex items-start gap-2">
+                    <LockKeyhole className="mt-0.5 size-4 shrink-0 text-amber-300" />
+                    <div>
+                      <p className="font-semibold">
+                        {m['landing.chatImage.auth_title']()}
+                      </p>
+                      <p className="mt-1 text-xs leading-5 text-amber-100/70">
+                        {m['landing.chatImage.auth_message']()}
+                      </p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <Link href="/sign-up" className="chat-mini-button">
+                          {m['landing.chatImage.create_account']()}
+                          <ArrowRight className="size-3.5" />
+                        </Link>
+                        <Link href="/sign-in" className="chat-text-link">
+                          {m['landing.chatImage.sign_in']()}
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <button
+                  type="button"
+                  disabled={!canGenerate}
+                  onClick={handleGenerate}
+                  className="chat-primary-button w-full"
+                >
+                  {isBusy ? (
+                    <LoaderCircle className="size-4 animate-spin" />
+                  ) : (
+                    <Zap className="size-4" />
+                  )}
+                  <span>{m['landing.chatImage.generate_my_image']()}</span>
+                </button>
+                <p className="mt-2 text-center text-xs text-slate-500">
+                  {m['landing.chatImage.failure_reassurance']()}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="chat-surface relative flex min-h-[520px] flex-col overflow-hidden px-4 pt-4 pb-5 sm:px-6">
+            <div className="chat-surface-line" />
+            <div className="mb-5 flex items-center justify-between">
+              <div className="inline-flex rounded-full border border-white/10 bg-slate-950/70 p-1.5 text-xs shadow-sm shadow-black/40">
+                <span className="rounded-md bg-amber-300/85 px-3 py-1.5 font-medium text-slate-950">
+                  {status === 'example'
+                    ? m['landing.chatImage.example_output']()
+                    : resultTitle}
+                </span>
+              </div>
+              <span className="text-xs text-slate-500">{ratio}</span>
+            </div>
+
+            <div className="relative flex min-h-0 flex-1 flex-col">
+              {status === 'loading' ? (
+                <div className="flex min-h-[420px] flex-1 flex-col items-center justify-center rounded-2xl border border-white/10 bg-slate-950/45 p-6 text-center">
+                  <div className="flex size-14 items-center justify-center rounded-full border border-amber-300/20 bg-amber-300/10 text-amber-300">
+                    <LoaderCircle className="size-6 animate-spin" />
+                  </div>
+                  <h2 className="mt-5 text-lg font-semibold text-slate-100">
+                    {m['landing.chatImage.creating_title']()}
+                  </h2>
+                  <p className="mt-2 max-w-xs text-sm leading-6 text-slate-400">
+                    {m['landing.chatImage.creating_message']()}
+                  </p>
+                </div>
+              ) : status === 'auth' ? (
+                <div className="flex min-h-[420px] flex-1 flex-col items-center justify-center rounded-2xl border border-amber-300/15 bg-amber-300/[0.04] p-6 text-center">
+                  <LockKeyhole className="size-8 text-amber-300" />
+                  <h2 className="mt-5 text-lg font-semibold text-slate-100">
+                    {m['landing.chatImage.auth_title']()}
+                  </h2>
+                  <p className="mt-2 max-w-sm text-sm leading-6 text-slate-400">
+                    {m['landing.chatImage.auth_message']()}
+                  </p>
+                </div>
+              ) : status === 'failed' ? (
+                <div className="flex min-h-[420px] flex-1 flex-col items-center justify-center rounded-2xl border border-red-300/15 bg-red-300/[0.04] p-6 text-center">
+                  <ImagePlus className="size-8 text-amber-300" />
+                  <h2 className="mt-5 text-lg font-semibold text-slate-100">
+                    {m['landing.chatImage.failure_title']()}
+                  </h2>
+                  <p className="mt-2 max-w-sm text-sm leading-6 text-slate-400">
+                    {m['landing.chatImage.failure_message']()}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleRetry}
+                    className="chat-secondary-button mt-5"
+                  >
+                    {m['landing.chatImage.try_again']()}
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="relative min-h-[420px] overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45">
+                    <img
+                      src={EXAMPLE_IMAGE}
+                      alt="Astronaut tending a glowing garden on the moon"
+                      className="h-full min-h-[420px] w-full object-cover"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-5 pt-20">
+                      <span className="inline-flex rounded-full bg-amber-300 px-2.5 py-1 text-xs font-medium text-slate-950">
+                        {status === 'success'
+                          ? m['landing.chatImage.ready_title']()
+                          : m['landing.chatImage.example_output']()}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mt-5 grid gap-4 sm:grid-cols-[auto_1fr] sm:items-start">
+                    <div className="flex items-center gap-2 text-xs font-semibold tracking-[0.12em] text-slate-500 uppercase">
+                      <Sparkles className="size-3.5 text-amber-300" />
+                      {m['landing.chatImage.prompt_used']()}
+                    </div>
+                    <p className="text-sm leading-6 text-slate-300">{prompt}</p>
+                  </div>
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {status === 'success' && (
+                      <a
+                        href={EXAMPLE_IMAGE}
+                        download="chat-to-image-result.png"
+                        className="chat-secondary-button"
+                      >
+                        <Download className="size-4" />
+                        {m['landing.chatImage.download']()}
+                      </a>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => requestPrompt(EXAMPLE_PROMPT)}
+                      className="chat-secondary-button"
+                    >
+                      <WandSparkles className="size-4" />
+                      {status === 'success'
+                        ? m['landing.chatImage.generate_another']()
+                        : m['landing.chatImage.try_again']()}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+            <p className="mt-5 text-center text-xs text-slate-500">
+              {m['landing.chatImage.preview_disclosure']()}
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
