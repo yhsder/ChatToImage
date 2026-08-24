@@ -3,47 +3,44 @@ import { createFileRoute } from '@tanstack/react-router';
 import { envConfigs } from '@/config';
 import { m } from '@/paraglide/messages.js';
 import { getLocale, locales, localizeUrl } from '@/paraglide/runtime.js';
-import { Blog } from '@/blocks/blog';
-import { CTA } from '@/blocks/cta';
-import { FAQ } from '@/blocks/faq';
-import { Features } from '@/blocks/features';
-import { Footer } from '@/blocks/footer';
-import { Header } from '@/blocks/header';
-import { Hero } from '@/blocks/hero';
-import { Pricing } from '@/blocks/pricing';
-import { SupportWidget } from '@/blocks/support-widget';
-import { getBlogPostsFn } from '@/content/posts/server';
+import { HomeBenefits } from '@/blocks/custom/home-benefits';
+import { HomeExamples } from '@/blocks/custom/home-examples';
+import { HomeFAQ } from '@/blocks/custom/home-faq';
+import { HomeFinalCta } from '@/blocks/custom/home-final-cta';
+import { HomeFooter } from '@/blocks/custom/home-footer';
+import { HomeHeader } from '@/blocks/custom/home-header';
+import { HomeHero } from '@/blocks/custom/home-hero';
+import { HomeHowItWorks } from '@/blocks/custom/home-how-it-works';
+import { HomePricing } from '@/blocks/custom/home-pricing';
+
+import '@/styles/home.css';
 
 /**
- * Default landing page — demo content. Rewrite this file (and the blocks in
- * src/blocks/) for your project. The primitives in src/components/ stay.
- * See /quick-start or /clone-website to automate the rewrite.
+ * ChatToImage homepage — marketing page + generator UI shell.
+ * See docs/designs/homepage-implementation-spec.md and docs/adr/0001-homepage-ui-shell.md.
  */
 function HomePage() {
-  const { posts } = Route.useLoaderData();
-
   return (
-    <div className="bg-background text-foreground flex min-h-screen flex-col">
-      <Header />
-      <main>
-        <Hero />
-        <Features />
-        <Pricing />
-        <FAQ />
-        <Blog posts={posts} />
-        <CTA />
+    <div className="home-root">
+      <HomeHeader />
+      <main id="top">
+        <HomeHero />
+        <HomeExamples />
+        <HomeHowItWorks />
+        <HomeBenefits />
+        <HomePricing />
+        <HomeFAQ />
+        <HomeFinalCta />
       </main>
-      <Footer />
-      <SupportWidget />
+      <HomeFooter />
     </div>
   );
 }
 
 export const Route = createFileRoute('/')({
-  loader: async () => {
+  loader: () => {
     const locale = getLocale();
-    const posts = await getBlogPostsFn({ data: { locale, limit: 3 } });
-    return { locale, posts };
+    return { locale };
   },
   head: ({ loaderData }) => {
     const locale = loaderData?.locale ?? 'en';
@@ -52,8 +49,11 @@ export const Route = createFileRoute('/')({
     return {
       meta: [
         {
+          title: m['home.meta.title']({}, { locale: locale as any }),
+        },
+        {
           name: 'description',
-          content: m['landing.hero.subheadline']({}, { locale: locale as any }),
+          content: m['home.meta.description']({}, { locale: locale as any }),
         },
       ],
       links: [

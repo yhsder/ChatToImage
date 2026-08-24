@@ -399,6 +399,11 @@ The `/quick-start` and `/clone-website` skills automate this workflow.
 
 The split is not cosmetic — it's **what survives a rebrand**. Primitives survive; block content doesn't.
 
+### Custom Code
+
+- `src/blocks/custom/` — your page sections (i18n-reading blocks)
+- `src/components/custom/` — your reusable UI (prop-driven components)
+
 ## Adding a New Feature
 
 1. **Need new DB tables?** Add to `src/config/db/schema.ts` (under the "Custom tables" section), run `pnpm db:push`
