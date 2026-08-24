@@ -1,10 +1,11 @@
 import { useState } from 'react';
 
-// Self-hosted body + meta fonts; display font (Cabinet Grotesk) loads below.
+// Self-hosted fonts: body + meta via @fontsource, display via local WOFF2.
 import '@fontsource/source-sans-3/400.css';
 import '@fontsource/source-sans-3/600.css';
 import '@fontsource/source-sans-3/700.css';
 import '@fontsource/jetbrains-mono/700.css';
+import '@/styles/cabinet-grotesk.css';
 
 import { Link } from '@/core/i18n/navigation';
 import { m } from '@/paraglide/messages.js';
@@ -22,11 +23,6 @@ export function HomeHeader() {
 
   return (
     <header className="site-header">
-      <link rel="preconnect" href="https://api.fontshare.com" />
-      <link
-        rel="stylesheet"
-        href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800&display=swap"
-      />
       <div className="shell">
         <nav className="site-nav">
           <a className="brand" href="#top">
