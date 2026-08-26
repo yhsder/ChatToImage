@@ -1,15 +1,19 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowRight,
   Check,
+  ChevronDown,
   Download,
+  Gem,
   ImagePlus,
   LoaderCircle,
   LockKeyhole,
   Sparkles,
+  Upload,
   WandSparkles,
+  X,
   Zap,
 } from 'lucide-react';
 
@@ -18,6 +22,12 @@ import { tDynamic } from '@/core/i18n/dynamic';
 import { Link } from '@/core/i18n/navigation';
 import { cn } from '@/lib/utils';
 import { m } from '@/paraglide/messages.js';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export const EXAMPLE_PROMPT =
   'A tiny astronaut tending a glowing garden on the moon, cinematic lighting, detailed digital art';
@@ -38,6 +48,30 @@ const QUALITIES = [
   { label: 'standard', message: 'landing.chatImage.standard' },
   { label: 'medium', message: 'landing.chatImage.medium' },
   { label: 'high', message: 'landing.chatImage.high' },
+] as const;
+
+const MODELS = [
+  {
+    id: 'flux-2-pro',
+    name: 'FLUX 2 Pro',
+    description: 'Photorealistic detail and precise text',
+    Icon: Sparkles,
+    accent: 'text-amber-300',
+  },
+  {
+    id: 'gemini-image',
+    name: 'Gemini Image',
+    description: 'Fast generation with strong prompt adherence',
+    Icon: Gem,
+    accent: 'text-sky-400',
+  },
+  {
+    id: 'kling',
+    name: 'Kling',
+    description: 'Cinematic composition and lighting',
+    Icon: Zap,
+    accent: 'text-violet-400',
+  },
 ] as const;
 
 function focusGenerator() {
@@ -66,7 +100,15 @@ export function ChatToImageGenerator() {
   const [prompt, setPrompt] = useState(EXAMPLE_PROMPT);
   const [ratio, setRatio] = useState('1:1');
   const [quality, setQuality] = useState('standard');
+  const [modelId, setModelId] = useState<string>(MODELS[0].id);
+  const [image, setImage] = useState<{ preview: string; name: string } | null>(
+    null
+  );
   const [status, setStatus] = useState<GeneratorStatus>('example');
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
+
+  const selectedModel =
+    MODELS.find((model) => model.id === modelId) ?? MODELS[0];
 
   const isBusy = status === 'loading';
   const canGenerate = prompt.trim().length > 0 && !isBusy;
@@ -80,13 +122,23 @@ export function ChatToImageGenerator() {
     const saved = sessionStorage.getItem('chat-to-image:generator');
     if (saved) {
       try {
-        const parsed = JSON.parse(saved) as { prompt?: string; ratio?: string };
+        const parsed = JSON.parse(saved) as {
+          prompt?: string;
+          ratio?: string;
+          modelId?: string;
+        };
         if (parsed.prompt) setPrompt(parsed.prompt);
         if (
           parsed.ratio &&
           RATIOS.some((item) => item.label === parsed.ratio)
         ) {
           setRatio(parsed.ratio);
+        }
+        if (
+          parsed.modelId &&
+          MODELS.some((item) => item.id === parsed.modelId)
+        ) {
+          setModelId(parsed.modelId);
         }
       } catch {
         sessionStorage.removeItem('chat-to-image:generator');
@@ -108,7 +160,7 @@ export function ChatToImageGenerator() {
   function handleGenerate() {
     if (!canGenerate) return;
 
-    const state = JSON.stringify({ prompt, ratio });
+    const state = JSON.stringify({ prompt, ratio, modelId });
     sessionStorage.setItem('chat-to-image:generator', state);
 
     if (!session?.user) {
@@ -123,6 +175,23 @@ export function ChatToImageGenerator() {
   function handleRetry() {
     setStatus(session?.user ? 'loading' : 'auth');
     if (session?.user) window.setTimeout(() => setStatus('success'), 1400);
+  }
+
+  function handleImageSelect(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    setImage((prev) => {
+      if (prev?.preview.startsWith('blob:')) URL.revokeObjectURL(prev.preview);
+      return { preview: URL.createObjectURL(file), name: file.name };
+    });
+    event.target.value = '';
+  }
+
+  function handleRemoveImage() {
+    setImage((prev) => {
+      if (prev?.preview.startsWith('blob:')) URL.revokeObjectURL(prev.preview);
+      return null;
+    });
   }
 
   return (
@@ -162,6 +231,120 @@ export function ChatToImageGenerator() {
           <div className="chat-surface relative overflow-hidden p-4 sm:p-5">
             <div className="chat-surface-line" />
             <div className="relative z-10 space-y-5">
+              <div>
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="chat-label">
+                    <span className="chat-label-mark" />
+                    {m['landing.chatImage.model']()}
+                  </span>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex h-14 w-full items-center justify-between rounded-xl border border-white/10 bg-slate-950/45 px-4 text-left transition-all hover:border-amber-300/40 hover:bg-slate-950/65">
+                    <span className="flex min-w-0 items-center">
+                      <span className="mr-3 flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 p-1.5">
+                        <selectedModel.Icon
+                          className={cn('size-5', selectedModel.accent)}
+                        />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate text-base leading-tight font-medium text-slate-50">
+                          {selectedModel.name}
+                        </span>
+                        <span className="mt-0.5 block truncate text-sm leading-tight text-slate-400">
+                          {selectedModel.description}
+                        </span>
+                      </span>
+                    </span>
+                    <ChevronDown className="ml-3 size-4 shrink-0 text-slate-400" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="start"
+                    sideOffset={6}
+                    className="bg-slate-900/95 p-1.5 text-slate-100 ring-white/10"
+                  >
+                    {MODELS.map((model) => {
+                      const selected = model.id === modelId;
+                      return (
+                        <DropdownMenuItem
+                          key={model.id}
+                          onClick={() => setModelId(model.id)}
+                          className={cn(
+                            'flex items-center gap-3 rounded-lg py-2.5 focus:bg-slate-800/70 focus:text-slate-100',
+                            selected && 'bg-slate-800/70'
+                          )}
+                        >
+                          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 p-1">
+                            <model.Icon
+                              className={cn('size-4', model.accent)}
+                            />
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-sm font-medium text-slate-100">
+                              {model.name}
+                            </span>
+                            <span className="block truncate text-xs text-slate-400">
+                              {model.description}
+                            </span>
+                          </span>
+                          {selected && (
+                            <Check className="size-4 shrink-0 text-amber-300" />
+                          )}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+
+              <div>
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="chat-label">
+                    <span className="chat-label-mark" />
+                    {m['landing.chatImage.image_label']()}
+                  </span>
+                </div>
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/jpg"
+                  onChange={handleImageSelect}
+                  className="hidden"
+                />
+                {image ? (
+                  <div className="group relative overflow-hidden rounded-xl border border-white/10">
+                    <img
+                      src={image.preview}
+                      alt={image.name}
+                      className="h-32 w-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      aria-label={m['landing.chatImage.image_remove']()}
+                      className="absolute top-2 right-2 flex size-7 items-center justify-center rounded-full bg-slate-950/70 text-slate-200 backdrop-blur transition hover:bg-slate-950/90 hover:text-white"
+                    >
+                      <X className="size-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => imageInputRef.current?.click()}
+                    className="group relative flex h-28 w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-white/15 bg-slate-950/30 transition-all duration-300 hover:border-amber-300/40 hover:bg-slate-900/50"
+                  >
+                    <span className="mb-2 flex size-9 items-center justify-center rounded-full bg-amber-300/10 transition-all duration-200">
+                      <Upload className="size-5 text-amber-300" />
+                    </span>
+                    <span className="text-sm font-medium text-slate-300">
+                      {m['landing.chatImage.image_upload_hint']()}
+                    </span>
+                    <span className="mt-1 text-xs text-slate-400">
+                      {m['landing.chatImage.image_upload_formats']()}
+                    </span>
+                  </button>
+                )}
+              </div>
+
               <div>
                 <div className="mb-2 flex items-center justify-between">
                   <label htmlFor="image-prompt" className="chat-label">
