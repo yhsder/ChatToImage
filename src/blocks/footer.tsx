@@ -1,8 +1,14 @@
+'use client';
+
+import { useSession } from '@/core/auth/client';
 import { envConfigs } from '@/config';
 import { m } from '@/paraglide/messages.js';
 import { SiteFooter, type FooterColumn } from '@/components/site-footer';
 
 export function Footer() {
+  const { data: session } = useSession();
+  const user = session?.user;
+
   const columns: FooterColumn[] = [
     {
       title: m['landing.footer.product_links'](),
@@ -22,7 +28,11 @@ export function Footer() {
     },
     {
       title: m['landing.footer.account'](),
-      links: [{ label: m['common.nav.sign_in'](), href: '/sign-in' }],
+      links: [
+        user
+          ? { label: m['common.nav.settings'](), href: '/settings' }
+          : { label: m['common.nav.sign_in'](), href: '/sign-in' },
+      ],
     },
   ];
 

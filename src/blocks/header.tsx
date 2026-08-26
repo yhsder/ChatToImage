@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 
+import { useSession } from '@/core/auth/client';
 import { tDynamic } from '@/core/i18n/dynamic';
 import { Link } from '@/core/i18n/navigation';
 import { envConfigs } from '@/config';
 import { m } from '@/paraglide/messages.js';
+import { SiteUserMenu } from '@/components/site-user-menu';
 
 const navLinks = [
   { href: '/#examples', label: 'landing.nav.examples' },
@@ -17,6 +19,8 @@ const navLinks = [
 
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { data: session } = useSession();
+  const user = session?.user;
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0b101e]/85 backdrop-blur-xl">
@@ -43,12 +47,20 @@ export function Header() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Link
-            href="/sign-in"
-            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-white/5 hover:text-slate-50"
-          >
-            {m['common.nav.sign_in']()}
-          </Link>
+          {user ? (
+            <SiteUserMenu
+              name={user.name || 'User'}
+              email={user.email}
+              image={user.image}
+            />
+          ) : (
+            <Link
+              href="/sign-in"
+              className="rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-white/5 hover:text-slate-50"
+            >
+              {m['common.nav.sign_in']()}
+            </Link>
+          )}
         </div>
 
         <button
@@ -75,13 +87,23 @@ export function Header() {
                 {tDynamic(link.label)}
               </Link>
             ))}
-            <Link
-              href="/sign-in"
-              onClick={() => setMobileOpen(false)}
-              className="mt-2 border-t border-white/10 px-3 pt-3 text-sm font-medium text-amber-300"
-            >
-              {m['common.nav.sign_in']()}
-            </Link>
+            {user ? (
+              <div className="mt-2 flex items-center border-t border-white/10 px-3 pt-3">
+                <SiteUserMenu
+                  name={user.name || 'User'}
+                  email={user.email}
+                  image={user.image}
+                />
+              </div>
+            ) : (
+              <Link
+                href="/sign-in"
+                onClick={() => setMobileOpen(false)}
+                className="mt-2 border-t border-white/10 px-3 pt-3 text-sm font-medium text-amber-300"
+              >
+                {m['common.nav.sign_in']()}
+              </Link>
+            )}
           </nav>
         </div>
       )}
