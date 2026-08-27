@@ -18,7 +18,7 @@ export function FAQ() {
       <div className="mx-auto max-w-4xl sm:px-2">
         <div className="mb-10 text-center">
           <p className="chat-eyebrow">{m['landing.nav.faq']()}</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-[-0.035em] text-slate-50 sm:text-5xl">
+          <h2 className="mt-3 text-3xl leading-[1.1] font-bold tracking-[-0.035em] text-slate-50 sm:text-5xl">
             {m['landing.chatFaq.title']()}
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-slate-400 sm:text-base">

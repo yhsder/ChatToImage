@@ -15,7 +15,7 @@ export function Benefits() {
       <div className="mx-auto grid max-w-7xl gap-10 sm:px-2 lg:grid-cols-[0.75fr_1.25fr] lg:gap-20 lg:px-4">
         <div>
           <p className="chat-eyebrow">{m['landing.benefits.eyebrow']()}</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-[-0.035em] text-slate-50 sm:text-5xl">
+          <h2 className="mt-3 text-3xl leading-[1.1] font-bold tracking-[-0.035em] text-slate-50 sm:text-5xl">
             {m['landing.benefits.title']()}
           </h2>
           <p className="mt-4 max-w-md text-sm leading-6 text-slate-400 sm:text-base">

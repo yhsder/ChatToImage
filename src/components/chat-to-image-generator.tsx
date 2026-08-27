@@ -224,7 +224,7 @@ export function ChatToImageGenerator() {
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
           <p className="chat-eyebrow">{m['landing.chatImage.eyebrow']()}</p>
-          <h1 className="mt-4 text-4xl font-black tracking-[-0.045em] text-slate-50 sm:text-6xl lg:text-7xl">
+          <h1 className="mt-4 text-4xl leading-[1.1] font-black tracking-[-0.045em] text-slate-50 sm:text-6xl lg:text-7xl">
             {m['landing.chatImage.title']()}
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-slate-400 sm:text-lg">

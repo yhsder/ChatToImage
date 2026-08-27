@@ -55,7 +55,7 @@ export function Examples() {
         <div className="mb-10 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
             <p className="chat-eyebrow">{m['landing.nav.examples']()}</p>
-            <h2 className="mt-3 max-w-2xl text-3xl font-bold tracking-[-0.035em] text-slate-50 sm:text-5xl">
+            <h2 className="mt-3 max-w-2xl text-3xl leading-[1.1] font-bold tracking-[-0.035em] text-slate-50 sm:text-5xl">
               {m['landing.examples.title']()}
             </h2>
             <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base">

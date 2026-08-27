@@ -19,7 +19,7 @@ export function Pricing() {
       <div className="mx-auto max-w-7xl sm:px-2 lg:px-4">
         <div className="mb-10 max-w-2xl">
           <p className="chat-eyebrow">{m['landing.nav.pricing']()}</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-[-0.035em] text-slate-50 sm:text-5xl">
+          <h2 className="mt-3 text-3xl leading-[1.1] font-bold tracking-[-0.035em] text-slate-50 sm:text-5xl">
             {m['landing.compactPricing.title']()}
           </h2>
           <p className="mt-4 text-sm leading-6 text-slate-400 sm:text-base">
