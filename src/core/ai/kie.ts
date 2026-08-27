@@ -16,6 +16,27 @@ import {
 const defaultUuid: UuidFunction = () => crypto.randomUUID();
 
 /**
+ * Per-model input specs for KIE image-to-image. The reference-image field name
+ * differs by model (GPT Image 2 uses `input_urls`, nano-banana-pro uses
+ * `image_input`), and only nano-banana-pro accepts an `output_format`. Both
+ * models share `resolution` (1K/2K/4K) and `aspect_ratio`.
+ * @see docs/research/kie-image-models.md
+ */
+const KIE_IMAGE_MODELS: Record<
+  string,
+  { referenceField: 'input_urls' | 'image_input'; hasOutputFormat: boolean }
+> = {
+  'gpt-image-2-image-to-image': {
+    referenceField: 'input_urls',
+    hasOutputFormat: false,
+  },
+  'nano-banana-pro': {
+    referenceField: 'image_input',
+    hasOutputFormat: true,
+  },
+};
+
+/**
  * Kie configs
  * @docs https://kie.ai/
  */
@@ -135,6 +156,11 @@ export class KieProvider implements AIProvider {
       throw new Error('prompt is required');
     }
 
+    const modelSpec = KIE_IMAGE_MODELS[params.model];
+    if (!modelSpec) {
+      throw new Error(`image model not supported: ${params.model}`);
+    }
+
     let payload: any = {
       model: params.model,
       callBackUrl: params.callbackUrl,
@@ -146,7 +172,7 @@ export class KieProvider implements AIProvider {
     if (params.options) {
       const options = params.options;
       if (options.image_input && Array.isArray(options.image_input)) {
-        payload.input.image_input = options.image_input;
+        payload.input[modelSpec.referenceField] = options.image_input;
       }
       if (options.aspect_ratio) {
         payload.input.aspect_ratio = options.aspect_ratio;
@@ -154,7 +180,7 @@ export class KieProvider implements AIProvider {
       if (options.resolution) {
         payload.input.resolution = options.resolution;
       }
-      if (options.output_format) {
+      if (modelSpec.hasOutputFormat && options.output_format) {
         payload.input.output_format = options.output_format;
       }
     }

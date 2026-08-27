@@ -1,7 +1,7 @@
 import { and, desc, eq, isNull } from 'drizzle-orm';
 
 import { db } from '@/core/db';
-import { aiTask } from '@/config/db/schema';
+import { aiTask, type AiTask } from '@/config/db/schema';
 import { consume, revoke } from '@/modules/credits/service';
 import { getUuid } from '@/lib/hash';
 
@@ -80,8 +80,9 @@ export async function updateTask(params: {
   taskId: string;
   status: AITaskStatus;
   taskResult?: any;
+  providerTaskId?: string;
 }) {
-  const { taskId, status, taskResult } = params;
+  const { taskId, status, taskResult, providerTaskId } = params;
 
   const [task] = await db()
     .select()
@@ -95,6 +96,9 @@ export async function updateTask(params: {
   const updateData: any = { status };
   if (taskResult) {
     updateData.taskResult = JSON.stringify(taskResult);
+  }
+  if (providerTaskId) {
+    updateData.taskId = providerTaskId;
   }
 
   await db().update(aiTask).set(updateData).where(eq(aiTask.id, taskId));
@@ -121,7 +125,7 @@ export async function getTasks(params: {
   status?: string;
   page?: number;
   limit?: number;
-}) {
+}): Promise<AiTask[]> {
   const { userId, mediaType, status, page = 1, limit = 20 } = params;
 
   return db()

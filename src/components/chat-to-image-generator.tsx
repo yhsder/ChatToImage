@@ -6,7 +6,6 @@ import {
   Check,
   ChevronDown,
   Download,
-  Gem,
   ImagePlus,
   LoaderCircle,
   LockKeyhole,
@@ -20,6 +19,7 @@ import {
 import { useSession } from '@/core/auth/client';
 import { tDynamic } from '@/core/i18n/dynamic';
 import { Link } from '@/core/i18n/navigation';
+import { apiGet, apiPost, apiUpload } from '@/lib/api-client';
 import { cn } from '@/lib/utils';
 import { m } from '@/paraglide/messages.js';
 import {
@@ -52,27 +52,23 @@ const QUALITIES = [
 
 const MODELS = [
   {
-    id: 'flux-2-pro',
-    name: 'FLUX 2 Pro',
-    description: 'Photorealistic detail and precise text',
+    id: 'gpt-image-2-image-to-image',
+    name: 'GPT Image 2',
+    description: 'Precise edits from your reference photo',
     Icon: Sparkles,
     accent: 'text-amber-300',
   },
   {
-    id: 'gemini-image',
-    name: 'Gemini Image',
-    description: 'Fast generation with strong prompt adherence',
-    Icon: Gem,
-    accent: 'text-sky-400',
-  },
-  {
-    id: 'kling',
-    name: 'Kling',
-    description: 'Cinematic composition and lighting',
+    id: 'nano-banana-pro',
+    name: 'nano-banana-pro',
+    description: 'Fast multi-reference edits, up to 8 images',
     Icon: Zap,
     accent: 'text-violet-400',
   },
 ] as const;
+
+const POLL_INTERVAL_MS = 3000;
+const MAX_POLL_ATTEMPTS = 100;
 
 function focusGenerator() {
   document.querySelector('#generator')?.scrollIntoView({
@@ -95,23 +91,63 @@ export function requestPrompt(prompt: string) {
   focusGenerator();
 }
 
+async function uploadImageFile(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append('files', file);
+
+  const result = await apiUpload<{ urls: string[] }>(
+    '/api/storage/upload-image',
+    formData
+  );
+  if (!result.urls?.length) {
+    throw new Error('Upload failed');
+  }
+  return result.urls[0];
+}
+
+async function pollImageResult(
+  taskId: string,
+  signal: AbortSignal
+): Promise<string[]> {
+  for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt += 1) {
+    if (signal.aborted) throw new Error('Canceled');
+
+    const result = await apiGet<{ status: string; images?: string[] }>(
+      `/api/ai/image?taskId=${encodeURIComponent(taskId)}`,
+      { signal }
+    );
+    if (result.status === 'success') return result.images ?? [];
+    if (result.status === 'failed') throw new Error('Generation failed');
+
+    await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+  }
+  throw new Error('Generation timed out');
+}
+
 export function ChatToImageGenerator() {
   const { data: session } = useSession();
   const [prompt, setPrompt] = useState(EXAMPLE_PROMPT);
   const [ratio, setRatio] = useState('1:1');
   const [quality, setQuality] = useState('standard');
   const [modelId, setModelId] = useState<string>(MODELS[0].id);
-  const [image, setImage] = useState<{ preview: string; name: string } | null>(
-    null
-  );
+  const [image, setImage] = useState<{
+    preview: string;
+    name: string;
+    file: File;
+  } | null>(null);
+  const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [status, setStatus] = useState<GeneratorStatus>('example');
   const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const generationRef = useRef<AbortController | null>(null);
 
   const selectedModel =
     MODELS.find((model) => model.id === modelId) ?? MODELS[0];
 
   const isBusy = status === 'loading';
-  const canGenerate = prompt.trim().length > 0 && !isBusy;
+  const canGenerate =
+    prompt.trim().length > 0 &&
+    !isBusy &&
+    (session?.user ? image !== null : true);
   const resultTitle = useMemo(() => {
     if (status === 'success') return m['landing.chatImage.ready_title']();
     if (status === 'loading') return m['landing.chatImage.creating_title']();
@@ -153,28 +189,58 @@ export function ChatToImageGenerator() {
     };
 
     window.addEventListener('chat-to-image:prompt', handlePrompt);
-    return () =>
+    return () => {
       window.removeEventListener('chat-to-image:prompt', handlePrompt);
+      generationRef.current?.abort();
+    };
   }, []);
 
-  function handleGenerate() {
-    if (!canGenerate) return;
-
-    const state = JSON.stringify({ prompt, ratio, modelId });
-    sessionStorage.setItem('chat-to-image:generator', state);
-
+  async function runGeneration() {
     if (!session?.user) {
       setStatus('auth');
       return;
     }
+    if (!image) return;
+
+    generationRef.current?.abort();
+    const controller = new AbortController();
+    generationRef.current = controller;
 
     setStatus('loading');
-    window.setTimeout(() => setStatus('success'), 1400);
+    setResultUrl(null);
+
+    try {
+      const imageUrl = await uploadImageFile(image.file);
+      const { taskId } = await apiPost<{ taskId: string }>('/api/ai/image', {
+        prompt,
+        image_url: imageUrl,
+        model: modelId,
+        quality,
+        ratio,
+      });
+      const images = await pollImageResult(taskId, controller.signal);
+      if (images.length === 0) throw new Error('No image returned');
+      setResultUrl(images[0]);
+      setStatus('success');
+    } catch (error) {
+      if (controller.signal.aborted) return;
+      console.error('generate image failed:', error);
+      setStatus('failed');
+    }
+  }
+
+  function handleGenerate() {
+    if (!canGenerate) return;
+
+    sessionStorage.setItem(
+      'chat-to-image:generator',
+      JSON.stringify({ prompt, ratio, modelId })
+    );
+    void runGeneration();
   }
 
   function handleRetry() {
-    setStatus(session?.user ? 'loading' : 'auth');
-    if (session?.user) window.setTimeout(() => setStatus('success'), 1400);
+    void runGeneration();
   }
 
   function handleImageSelect(event: React.ChangeEvent<HTMLInputElement>) {
@@ -182,7 +248,7 @@ export function ChatToImageGenerator() {
     if (!file || !file.type.startsWith('image/')) return;
     setImage((prev) => {
       if (prev?.preview.startsWith('blob:')) URL.revokeObjectURL(prev.preview);
-      return { preview: URL.createObjectURL(file), name: file.name };
+      return { preview: URL.createObjectURL(file), name: file.name, file };
     });
     event.target.value = '';
   }
@@ -432,7 +498,7 @@ export function ChatToImageGenerator() {
                     {m['landing.chatImage.quality']()}
                   </span>
                   <span className="text-xs text-slate-500">
-                    {m['landing.chatImage.credits']({ count: 2 })}
+                    {m['landing.chatImage.credits']({ count: 5 })}
                   </span>
                 </div>
                 <div className="flex gap-2">
@@ -555,8 +621,12 @@ export function ChatToImageGenerator() {
                 <>
                   <div className="relative min-h-[420px] overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45">
                     <img
-                      src={EXAMPLE_IMAGE}
-                      alt="Astronaut tending a glowing garden on the moon"
+                      src={resultUrl ?? EXAMPLE_IMAGE}
+                      alt={
+                        status === 'success'
+                          ? prompt
+                          : 'Astronaut tending a glowing garden on the moon'
+                      }
                       className="h-full min-h-[420px] w-full object-cover"
                     />
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-5 pt-20">
@@ -577,7 +647,7 @@ export function ChatToImageGenerator() {
                   <div className="mt-5 flex flex-wrap gap-2">
                     {status === 'success' && (
                       <a
-                        href={EXAMPLE_IMAGE}
+                        href={resultUrl ?? EXAMPLE_IMAGE}
                         download="chat-to-image-result.png"
                         className="chat-secondary-button"
                       >

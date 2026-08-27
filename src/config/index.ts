@@ -77,6 +77,9 @@ export const envConfigs: Record<string, string> = {
   // OPENAI_API_KEY / ANTHROPIC_API_KEY are common ambient vars, and falling back
   // to them would let the admin "Test" silently pass on the machine's own key.
   replicate_api_token: procEnv.REPLICATE_API_TOKEN ?? '',
+  // KIE (image-to-image) keeps an env fallback so local dev works without the
+  // admin panel; the admin "AI" setting (config table) overrides this value.
+  kie_api_key: procEnv.KIE_API_KEY ?? '',
 
   // Locale (public)
   locale: publicEnv('VITE_DEFAULT_LOCALE') ?? 'en',

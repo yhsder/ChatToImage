@@ -172,6 +172,12 @@ export function getSettingGroups(): SettingGroup[] {
       tab: 'ai',
     },
     { name: 'fal', title: 'Fal', description: 'Fal AI API', tab: 'ai' },
+    {
+      name: 'kie',
+      title: 'KIE',
+      description: 'KIE image-to-image API',
+      tab: 'ai',
+    },
 
     // Analytics
     {
@@ -822,6 +828,16 @@ export function getSettings(): Setting[] {
       type: 'password',
       placeholder: 'xxx',
       group: 'fal',
+      tab: 'ai',
+    },
+
+    // ─── AI / KIE ────────────────────────────────────────────────────
+    {
+      name: 'kie_api_key',
+      title: 'API Key',
+      type: 'password',
+      placeholder: 'kie-xxx',
+      group: 'kie',
       tab: 'ai',
     },
 
