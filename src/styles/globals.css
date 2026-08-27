@@ -192,7 +192,10 @@
     padding: 0.55rem 0.6rem;
     color: #cbd5e1;
     font-size: 0.78rem;
-    transition: all 180ms ease;
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease,
+      color 180ms ease;
   }
 
   .chat-choice:hover,
@@ -250,7 +253,9 @@
     border-radius: 0.65rem;
     background: rgba(2, 6, 23, 0.35);
     color: #e2e8f0;
-    transition: all 180ms ease;
+    transition:
+      border-color 180ms ease,
+      color 180ms ease;
   }
 
   .chat-secondary-button:hover {
