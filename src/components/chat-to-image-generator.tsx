@@ -19,9 +19,9 @@ import {
 import { useSession } from '@/core/auth/client';
 import { tDynamic } from '@/core/i18n/dynamic';
 import { Link } from '@/core/i18n/navigation';
-import { apiGet, apiPost, apiUpload } from '@/lib/api-client';
 import { cn } from '@/lib/utils';
 import { m } from '@/paraglide/messages.js';
+import { useImageGeneration } from '@/hooks/use-image-generation';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -67,9 +67,6 @@ const MODELS = [
   },
 ] as const;
 
-const POLL_INTERVAL_MS = 3000;
-const MAX_POLL_ATTEMPTS = 100;
-
 function focusGenerator() {
   document.querySelector('#generator')?.scrollIntoView({
     behavior: 'smooth',
@@ -91,39 +88,6 @@ export function requestPrompt(prompt: string) {
   focusGenerator();
 }
 
-async function uploadImageFile(file: File): Promise<string> {
-  const formData = new FormData();
-  formData.append('files', file);
-
-  const result = await apiUpload<{ urls: string[] }>(
-    '/api/storage/upload-image',
-    formData
-  );
-  if (!result.urls?.length) {
-    throw new Error('Upload failed');
-  }
-  return result.urls[0];
-}
-
-async function pollImageResult(
-  taskId: string,
-  signal: AbortSignal
-): Promise<string[]> {
-  for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt += 1) {
-    if (signal.aborted) throw new Error('Canceled');
-
-    const result = await apiGet<{ status: string; images?: string[] }>(
-      `/api/ai/image?taskId=${encodeURIComponent(taskId)}`,
-      { signal }
-    );
-    if (result.status === 'success') return result.images ?? [];
-    if (result.status === 'failed') throw new Error('Generation failed');
-
-    await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
-  }
-  throw new Error('Generation timed out');
-}
-
 export function ChatToImageGenerator() {
   const { data: session } = useSession();
   const [prompt, setPrompt] = useState(EXAMPLE_PROMPT);
@@ -135,24 +99,40 @@ export function ChatToImageGenerator() {
     name: string;
     file: File;
   } | null>(null);
-  const [resultUrl, setResultUrl] = useState<string | null>(null);
-  const [status, setStatus] = useState<GeneratorStatus>('example');
+  const [showAuth, setShowAuth] = useState(false);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
-  const generationRef = useRef<AbortController | null>(null);
+
+  const {
+    status: genStatus,
+    resultUrl,
+    generate,
+    retry,
+    reset,
+  } = useImageGeneration();
 
   const selectedModel =
     MODELS.find((model) => model.id === modelId) ?? MODELS[0];
 
-  const isBusy = status === 'loading';
+  // Derive the display state: the auth prompt, the example preview, or the
+  // generation state machine (loading / success / failed) held by the hook.
+  const displayStatus: GeneratorStatus = showAuth
+    ? 'auth'
+    : genStatus === 'idle'
+      ? 'example'
+      : genStatus;
+
+  const isBusy = genStatus === 'loading';
   const canGenerate =
     prompt.trim().length > 0 &&
     !isBusy &&
     (session?.user ? image !== null : true);
   const resultTitle = useMemo(() => {
-    if (status === 'success') return m['landing.chatImage.ready_title']();
-    if (status === 'loading') return m['landing.chatImage.creating_title']();
+    if (displayStatus === 'success')
+      return m['landing.chatImage.ready_title']();
+    if (displayStatus === 'loading')
+      return m['landing.chatImage.creating_title']();
     return m['landing.chatImage.example_output']();
-  }, [status]);
+  }, [displayStatus]);
 
   useEffect(() => {
     const saved = sessionStorage.getItem('chat-to-image:generator');
@@ -185,49 +165,15 @@ export function ChatToImageGenerator() {
       const nextPrompt = (event as CustomEvent<string>).detail;
       if (!nextPrompt) return;
       setPrompt(nextPrompt);
-      setStatus('example');
+      setShowAuth(false);
+      reset();
     };
 
     window.addEventListener('chat-to-image:prompt', handlePrompt);
     return () => {
       window.removeEventListener('chat-to-image:prompt', handlePrompt);
-      generationRef.current?.abort();
     };
-  }, []);
-
-  async function runGeneration() {
-    if (!session?.user) {
-      setStatus('auth');
-      return;
-    }
-    if (!image) return;
-
-    generationRef.current?.abort();
-    const controller = new AbortController();
-    generationRef.current = controller;
-
-    setStatus('loading');
-    setResultUrl(null);
-
-    try {
-      const imageUrl = await uploadImageFile(image.file);
-      const { taskId } = await apiPost<{ taskId: string }>('/api/ai/image', {
-        prompt,
-        image_url: imageUrl,
-        model: modelId,
-        quality,
-        ratio,
-      });
-      const images = await pollImageResult(taskId, controller.signal);
-      if (images.length === 0) throw new Error('No image returned');
-      setResultUrl(images[0]);
-      setStatus('success');
-    } catch (error) {
-      if (controller.signal.aborted) return;
-      console.error('generate image failed:', error);
-      setStatus('failed');
-    }
-  }
+  }, [reset]);
 
   function handleGenerate() {
     if (!canGenerate) return;
@@ -236,11 +182,24 @@ export function ChatToImageGenerator() {
       'chat-to-image:generator',
       JSON.stringify({ prompt, ratio, modelId })
     );
-    void runGeneration();
+
+    if (!session?.user) {
+      setShowAuth(true);
+      return;
+    }
+    if (!image) return;
+
+    void generate({
+      prompt,
+      image: image.file,
+      model: modelId,
+      quality,
+      ratio,
+    });
   }
 
   function handleRetry() {
-    void runGeneration();
+    void retry();
   }
 
   function handleImageSelect(event: React.ChangeEvent<HTMLInputElement>) {
@@ -518,7 +477,7 @@ export function ChatToImageGenerator() {
                 </div>
               </div>
 
-              {status === 'auth' && (
+              {displayStatus === 'auth' && (
                 <div className="rounded-xl border border-amber-300/25 bg-amber-300/10 p-3 text-sm text-amber-100">
                   <div className="flex items-start gap-2">
                     <LockKeyhole className="mt-0.5 size-4 shrink-0 text-amber-300" />
@@ -569,7 +528,7 @@ export function ChatToImageGenerator() {
             <div className="mb-5 flex items-center justify-between">
               <div className="inline-flex rounded-full border border-white/10 bg-slate-950/70 p-1.5 text-xs shadow-sm shadow-black/40">
                 <span className="rounded-md bg-amber-300/85 px-3 py-1.5 font-medium text-slate-950">
-                  {status === 'example'
+                  {displayStatus === 'example'
                     ? m['landing.chatImage.example_output']()
                     : resultTitle}
                 </span>
@@ -578,7 +537,7 @@ export function ChatToImageGenerator() {
             </div>
 
             <div className="relative flex min-h-0 flex-1 flex-col">
-              {status === 'loading' ? (
+              {displayStatus === 'loading' ? (
                 <div className="flex min-h-[420px] flex-1 flex-col items-center justify-center rounded-2xl border border-white/10 bg-slate-950/45 p-6 text-center">
                   <div className="flex size-14 items-center justify-center rounded-full border border-amber-300/20 bg-amber-300/10 text-amber-300">
                     <LoaderCircle className="size-6 animate-spin" />
@@ -590,7 +549,7 @@ export function ChatToImageGenerator() {
                     {m['landing.chatImage.creating_message']()}
                   </p>
                 </div>
-              ) : status === 'auth' ? (
+              ) : displayStatus === 'auth' ? (
                 <div className="flex min-h-[420px] flex-1 flex-col items-center justify-center rounded-2xl border border-amber-300/15 bg-amber-300/[0.04] p-6 text-center">
                   <LockKeyhole className="size-8 text-amber-300" />
                   <h2 className="mt-5 text-lg font-semibold text-slate-100">
@@ -600,7 +559,7 @@ export function ChatToImageGenerator() {
                     {m['landing.chatImage.auth_message']()}
                   </p>
                 </div>
-              ) : status === 'failed' ? (
+              ) : displayStatus === 'failed' ? (
                 <div className="flex min-h-[420px] flex-1 flex-col items-center justify-center rounded-2xl border border-red-300/15 bg-red-300/[0.04] p-6 text-center">
                   <ImagePlus className="size-8 text-amber-300" />
                   <h2 className="mt-5 text-lg font-semibold text-slate-100">
@@ -623,7 +582,7 @@ export function ChatToImageGenerator() {
                     <img
                       src={resultUrl ?? EXAMPLE_IMAGE}
                       alt={
-                        status === 'success'
+                        displayStatus === 'success'
                           ? prompt
                           : 'Astronaut tending a glowing garden on the moon'
                       }
@@ -631,7 +590,7 @@ export function ChatToImageGenerator() {
                     />
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-5 pt-20">
                       <span className="inline-flex rounded-full bg-amber-300 px-2.5 py-1 text-xs font-medium text-slate-950">
-                        {status === 'success'
+                        {displayStatus === 'success'
                           ? m['landing.chatImage.ready_title']()
                           : m['landing.chatImage.example_output']()}
                       </span>
@@ -645,7 +604,7 @@ export function ChatToImageGenerator() {
                     <p className="text-sm leading-6 text-slate-300">{prompt}</p>
                   </div>
                   <div className="mt-5 flex flex-wrap gap-2">
-                    {status === 'success' && (
+                    {displayStatus === 'success' && (
                       <a
                         href={resultUrl ?? EXAMPLE_IMAGE}
                         download="chat-to-image-result.png"
@@ -661,7 +620,7 @@ export function ChatToImageGenerator() {
                       className="chat-secondary-button"
                     >
                       <WandSparkles className="size-4" />
-                      {status === 'success'
+                      {displayStatus === 'success'
                         ? m['landing.chatImage.generate_another']()
                         : m['landing.chatImage.try_again']()}
                     </button>

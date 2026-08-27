@@ -1,17 +1,10 @@
 import { and, desc, eq, isNull } from 'drizzle-orm';
 
+import { AITaskStatus } from '@/core/ai';
 import { db } from '@/core/db';
 import { aiTask, type AiTask } from '@/config/db/schema';
 import { consume, revoke } from '@/modules/credits/service';
 import { getUuid } from '@/lib/hash';
-
-export enum AITaskStatus {
-  PENDING = 'pending',
-  PROCESSING = 'processing',
-  SUCCESS = 'success',
-  FAILED = 'failed',
-  CANCELED = 'canceled',
-}
 
 /**
  * Create an AI task with optional credit consumption.
