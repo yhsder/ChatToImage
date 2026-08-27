@@ -9,6 +9,7 @@
  */
 
 import { FalProvider } from '@/core/ai/fal';
+import { KieProvider } from '@/core/ai/kie';
 import { ReplicateProvider } from '@/core/ai/replicate';
 import { AIMediaType } from '@/core/ai/types';
 import { ResendProvider } from '@/core/email/resend';
@@ -58,6 +59,8 @@ export async function runTest(
         return await testReplicate(inputs, configs);
       case 'fal':
         return await testFal(inputs, configs);
+      case 'kie':
+        return await testKie(inputs, configs);
       default:
         return { success: false, message: `No test available for "${group}"` };
     }
@@ -497,6 +500,28 @@ async function testFal(
   return {
     success: true,
     message: 'Fal accepted the request',
+    details: { 'Task ID': result.taskId, Status: result.taskStatus },
+  };
+}
+
+async function testKie(
+  inputs: Record<string, string>,
+  configs: Record<string, string>
+): Promise<TestResult> {
+  const missing = need(configs, ['kie_api_key']);
+  if (missing) return { success: false, message: missing };
+
+  const provider = new KieProvider({ apiKey: configs.kie_api_key });
+  const result = await provider.generate({
+    params: {
+      mediaType: AIMediaType.IMAGE,
+      model: inputs.model,
+      prompt: inputs.prompt,
+    },
+  });
+  return {
+    success: true,
+    message: 'KIE accepted the request',
     details: { 'Task ID': result.taskId, Status: result.taskStatus },
   };
 }

@@ -229,6 +229,25 @@ export const testSpecs: Record<string, TestSpec> = {
       },
     ],
   },
+  kie: {
+    group: 'kie',
+    fields: [
+      {
+        name: 'model',
+        label: 'Model',
+        type: 'text',
+        defaultValue: 'gpt-image-2-text-to-image',
+        required: true,
+      },
+      {
+        name: 'prompt',
+        label: 'Prompt',
+        type: 'textarea',
+        defaultValue: 'a small red cube, product photography',
+        required: true,
+      },
+    ],
+  },
 };
 
 export function getTestSpec(group: string): TestSpec | undefined {
