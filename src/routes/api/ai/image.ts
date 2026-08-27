@@ -5,9 +5,10 @@ import { pollImage, submitImage } from '@/modules/ai/service';
 import { respData, respErr } from '@/lib/resp';
 
 /**
- * POST /api/ai/image — submit an image-to-image generation.
- * Body: { prompt, image_url, model, quality?, ratio? }
- * Returns the internal task id; the client polls GET with it.
+ * POST /api/ai/image — submit an image generation. Body:
+ * { prompt, image_url?, model, quality?, ratio? } — `image_url` is optional;
+ * omitting it means text-to-image. Returns the internal task id; the client
+ * polls GET with it.
  */
 async function POST({ request }: { request: Request }) {
   try {

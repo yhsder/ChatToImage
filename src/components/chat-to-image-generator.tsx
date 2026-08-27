@@ -54,14 +54,14 @@ const MODELS = [
   {
     id: 'gpt-image-2-image-to-image',
     name: 'GPT Image 2',
-    description: 'Precise edits from your reference photo',
+    description: 'Generate from text, or edit with an optional reference',
     Icon: Sparkles,
     accent: 'text-amber-300',
   },
   {
     id: 'nano-banana-pro',
     name: 'nano-banana-pro',
-    description: 'Fast multi-reference edits, up to 8 images',
+    description: 'Fast generation, optional multi-reference (up to 8 images)',
     Icon: Zap,
     accent: 'text-violet-400',
   },
@@ -122,10 +122,7 @@ export function ChatToImageGenerator() {
       : genStatus;
 
   const isBusy = genStatus === 'loading';
-  const canGenerate =
-    prompt.trim().length > 0 &&
-    !isBusy &&
-    (session?.user ? image !== null : true);
+  const canGenerate = prompt.trim().length > 0 && !isBusy;
   const resultTitle = useMemo(() => {
     if (displayStatus === 'success')
       return m['landing.chatImage.ready_title']();
@@ -187,11 +184,10 @@ export function ChatToImageGenerator() {
       setShowAuth(true);
       return;
     }
-    if (!image) return;
 
     void generate({
       prompt,
-      image: image.file,
+      image: image?.file ?? null,
       model: modelId,
       quality,
       ratio,

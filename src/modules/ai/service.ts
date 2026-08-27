@@ -88,7 +88,7 @@ const QUALITY_TO_RESOLUTION: Record<string, string> = {
 export interface SubmitImageInput {
   userId: string;
   prompt: string;
-  imageUrl: string;
+  imageUrl?: string;
   model: string;
   quality?: string;
   ratio?: string;
@@ -125,8 +125,10 @@ function parseTaskResult(taskResult: string | null): {
 }
 
 /**
- * Submit an image-to-image generation: resolve cost, deduct credits and
- * persist the task atomically, then hand off to the KIE provider. Refunds the
+ * Submit an image generation: resolve cost, deduct credits and persist the
+ * task atomically, then hand off to the KIE provider. The reference image is
+ * optional — without one the generation is text-to-image (GPT Image 2 switches
+ * to its text-only model, nano-banana-pro omits `image_input`). Refunds the
  * credits if the provider call fails before producing a task.
  */
 export async function submitImage(input: SubmitImageInput): Promise<{
@@ -143,8 +145,13 @@ export async function submitImage(input: SubmitImageInput): Promise<{
   } = input;
 
   if (!prompt) throw new Error('prompt is required');
-  if (!imageUrl) throw new Error('image_url is required');
   if (!model) throw new Error('model is required');
+
+  // GPT Image 2 has a distinct model id for text-only generation.
+  const actualModel =
+    !imageUrl && model === 'gpt-image-2-image-to-image'
+      ? 'gpt-image-2-text-to-image'
+      : model;
 
   const resolution = QUALITY_TO_RESOLUTION[quality] ?? '1K';
 
@@ -156,7 +163,7 @@ export async function submitImage(input: SubmitImageInput): Promise<{
     userId,
     mediaType: AIMediaType.IMAGE,
     provider: 'kie',
-    model,
+    model: actualModel,
     prompt,
     costCredits: IMAGE_COST_CREDITS,
   });
@@ -166,9 +173,9 @@ export async function submitImage(input: SubmitImageInput): Promise<{
       params: {
         mediaType: AIMediaType.IMAGE,
         prompt,
-        model,
+        model: actualModel,
         options: {
-          image_input: [imageUrl],
+          ...(imageUrl ? { image_input: [imageUrl] } : {}),
           aspect_ratio: ratio,
           resolution,
         },

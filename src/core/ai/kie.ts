@@ -16,18 +16,25 @@ import {
 const defaultUuid: UuidFunction = () => crypto.randomUUID();
 
 /**
- * Per-model input specs for KIE image-to-image. The reference-image field name
- * differs by model (GPT Image 2 uses `input_urls`, nano-banana-pro uses
+ * Per-model input specs for KIE image generation. The reference-image field
+ * name differs by model (GPT Image 2 uses `input_urls`, nano-banana-pro uses
  * `image_input`), and only nano-banana-pro accepts an `output_format`. Both
  * models share `resolution` (1K/2K/4K) and `aspect_ratio`.
- * @see docs/research/kie-image-models.md
+ *
+ * `referenceField` is absent on text-to-image models: GPT Image 2's text-only
+ * variant is a distinct model id (`gpt-image-2-text-to-image`) with no
+ * reference input, while nano-banana-pro reuses its single model and simply
+ * omits `image_input` when no reference is supplied.
  */
 const KIE_IMAGE_MODELS: Record<
   string,
-  { referenceField: 'input_urls' | 'image_input'; hasOutputFormat: boolean }
+  { referenceField?: 'input_urls' | 'image_input'; hasOutputFormat: boolean }
 > = {
   'gpt-image-2-image-to-image': {
     referenceField: 'input_urls',
+    hasOutputFormat: false,
+  },
+  'gpt-image-2-text-to-image': {
     hasOutputFormat: false,
   },
   'nano-banana-pro': {
@@ -171,7 +178,12 @@ export class KieProvider implements AIProvider {
 
     if (params.options) {
       const options = params.options;
-      if (options.image_input && Array.isArray(options.image_input)) {
+      if (
+        modelSpec.referenceField &&
+        options.image_input &&
+        Array.isArray(options.image_input) &&
+        options.image_input.length > 0
+      ) {
         payload.input[modelSpec.referenceField] = options.image_input;
       }
       if (options.aspect_ratio) {

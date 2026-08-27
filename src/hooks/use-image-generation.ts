@@ -6,7 +6,7 @@ export type GenerationStatus = 'idle' | 'loading' | 'success' | 'failed';
 
 export interface GenerateImageInput {
   prompt: string;
-  image: File;
+  image?: File | null;
   model: string;
   quality: string;
   ratio: string;
@@ -70,7 +70,7 @@ export function useImageGeneration() {
     setResultUrl(null);
 
     try {
-      const imageUrl = await uploadImageFile(input.image);
+      const imageUrl = input.image ? await uploadImageFile(input.image) : '';
       const { taskId } = await apiPost<{ taskId: string }>('/api/ai/image', {
         prompt: input.prompt,
         image_url: imageUrl,
