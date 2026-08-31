@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ArrowRight,
   Check,
@@ -90,7 +90,7 @@ export function requestPrompt(prompt: string) {
 
 export function ChatToImageGenerator() {
   const { data: session } = useSession();
-  const [prompt, setPrompt] = useState(EXAMPLE_PROMPT);
+  const [prompt, setPrompt] = useState('');
   const [ratio, setRatio] = useState('1:1');
   const [quality, setQuality] = useState('standard');
   const [modelId, setModelId] = useState<string>(MODELS[0].id);
@@ -123,13 +123,6 @@ export function ChatToImageGenerator() {
 
   const isBusy = genStatus === 'loading';
   const canGenerate = prompt.trim().length > 0 && !isBusy;
-  const resultTitle = useMemo(() => {
-    if (displayStatus === 'success')
-      return m['landing.chatImage.ready_title']();
-    if (displayStatus === 'loading')
-      return m['landing.chatImage.creating_title']();
-    return m['landing.chatImage.example_output']();
-  }, [displayStatus]);
 
   useEffect(() => {
     const saved = sessionStorage.getItem('chat-to-image:generator');
@@ -521,17 +514,6 @@ export function ChatToImageGenerator() {
 
           <div className="chat-surface relative flex min-h-[520px] flex-col overflow-hidden px-4 pt-4 pb-5 sm:px-6">
             <div className="chat-surface-line" />
-            <div className="mb-5 flex items-center justify-between">
-              <div className="inline-flex rounded-full border border-white/10 bg-slate-950/70 p-1.5 text-xs shadow-sm shadow-black/40">
-                <span className="rounded-md bg-amber-300/85 px-3 py-1.5 font-medium text-slate-950">
-                  {displayStatus === 'example'
-                    ? m['landing.chatImage.example_output']()
-                    : resultTitle}
-                </span>
-              </div>
-              <span className="text-xs text-slate-500">{ratio}</span>
-            </div>
-
             <div className="relative flex min-h-0 flex-1 flex-col">
               {displayStatus === 'loading' ? (
                 <div className="flex min-h-[420px] flex-1 flex-col items-center justify-center rounded-2xl border border-white/10 bg-slate-950/45 p-6 text-center">
@@ -584,23 +566,9 @@ export function ChatToImageGenerator() {
                       }
                       className="h-full min-h-[420px] w-full object-cover"
                     />
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-5 pt-20">
-                      <span className="inline-flex rounded-full bg-amber-300 px-2.5 py-1 text-xs font-medium text-slate-950">
-                        {displayStatus === 'success'
-                          ? m['landing.chatImage.ready_title']()
-                          : m['landing.chatImage.example_output']()}
-                      </span>
-                    </div>
                   </div>
-                  <div className="mt-5 grid gap-4 sm:grid-cols-[auto_1fr] sm:items-start">
-                    <div className="flex items-center gap-2 text-xs font-semibold tracking-[0.12em] text-slate-500 uppercase">
-                      <Sparkles className="size-3.5 text-amber-300" />
-                      {m['landing.chatImage.prompt_used']()}
-                    </div>
-                    <p className="text-sm leading-6 text-slate-300">{prompt}</p>
-                  </div>
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {displayStatus === 'success' && (
+                  {displayStatus === 'success' && (
+                    <div className="mt-5 flex flex-wrap gap-2">
                       <a
                         href={resultUrl ?? EXAMPLE_IMAGE}
                         download="chat-to-image-result.png"
@@ -609,18 +577,8 @@ export function ChatToImageGenerator() {
                         <Download className="size-4" />
                         {m['landing.chatImage.download']()}
                       </a>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => requestPrompt(EXAMPLE_PROMPT)}
-                      className="chat-secondary-button"
-                    >
-                      <WandSparkles className="size-4" />
-                      {displayStatus === 'success'
-                        ? m['landing.chatImage.generate_another']()
-                        : m['landing.chatImage.try_again']()}
-                    </button>
-                  </div>
+                    </div>
+                  )}
                 </>
               )}
             </div>
