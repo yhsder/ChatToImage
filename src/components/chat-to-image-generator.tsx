@@ -83,7 +83,7 @@ const MODELS = [
   },
   {
     id: 'nano-banana-pro',
-    name: 'nano-banana-pro',
+    name: 'Nano Banana Pro',
     description: 'Fast generation, optional multi-reference (up to 8 images)',
     Icon: Zap,
     accent: 'text-violet-400',
@@ -434,9 +434,6 @@ export function ChatToImageGenerator() {
                     <span className="chat-label-mark" />
                     {m['landing.chatImage.aspect_ratio']()}
                   </span>
-                  <span className="rounded-full border border-white/10 bg-slate-950/60 px-2.5 py-1 text-[11px] text-slate-400">
-                    {m['landing.chatImage.standard']()}
-                  </span>
                 </div>
                 <div className="grid grid-cols-5 gap-1.5">
                   {RATIOS.map((item) => {
@@ -623,9 +620,6 @@ export function ChatToImageGenerator() {
                 <IdleExamplesCarousel />
               )}
             </div>
-            <p className="mt-5 text-center text-xs text-slate-500">
-              {m['landing.chatImage.preview_disclosure']()}
-            </p>
           </div>
         </div>
       </div>
@@ -702,8 +696,8 @@ function IdleExamplesCarousel() {
         <button
           type="button"
           onClick={() => api?.scrollPrev()}
-          aria-label="Previous example"
-          className="flex size-8 items-center justify-center rounded-full border border-white/10 bg-slate-950/60 text-slate-300 transition hover:border-amber-300/40 hover:text-amber-300"
+          aria-label={m['landing.chatImage.prev_example']()}
+          className="flex size-10 items-center justify-center rounded-full border border-white/10 bg-slate-950/60 text-slate-300 transition hover:border-amber-300/40 hover:text-amber-300"
         >
           <ChevronLeft className="size-4" />
         </button>
@@ -726,8 +720,8 @@ function IdleExamplesCarousel() {
         <button
           type="button"
           onClick={() => api?.scrollNext()}
-          aria-label="Next example"
-          className="flex size-8 items-center justify-center rounded-full border border-white/10 bg-slate-950/60 text-slate-300 transition hover:border-amber-300/40 hover:text-amber-300"
+          aria-label={m['landing.chatImage.next_example']()}
+          className="flex size-10 items-center justify-center rounded-full border border-white/10 bg-slate-950/60 text-slate-300 transition hover:border-amber-300/40 hover:text-amber-300"
         >
           <ChevronRight className="size-4" />
         </button>
