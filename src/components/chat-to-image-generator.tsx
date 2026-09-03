@@ -1,10 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import AutoPlay from 'embla-carousel-autoplay';
 import {
   ArrowRight,
   Check,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Download,
   ImagePlus,
   LoaderCircle,
@@ -23,6 +26,12 @@ import { cn } from '@/lib/utils';
 import { m } from '@/paraglide/messages.js';
 import { useImageGeneration } from '@/hooks/use-image-generation';
 import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from '@/components/ui/carousel';
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -33,6 +42,14 @@ export const EXAMPLE_PROMPT =
   'A tiny astronaut tending a glowing garden on the moon, cinematic lighting, detailed digital art';
 
 const EXAMPLE_IMAGE = '/generated/moon-garden.png';
+
+// Showcase examples shown in the idle result panel before the first generation.
+const PANEL_EXAMPLES = [
+  { id: 1, image: '/generated/moon-garden.png' },
+  { id: 2, image: '/generated/portrait.png' },
+  { id: 3, image: '/generated/nature.png' },
+  { id: 4, image: '/generated/poster.png' },
+] as const;
 
 type GeneratorStatus = 'example' | 'auth' | 'loading' | 'success' | 'failed';
 
@@ -554,32 +571,28 @@ export function ChatToImageGenerator() {
                     {m['landing.chatImage.try_again']()}
                   </button>
                 </div>
-              ) : (
+              ) : displayStatus === 'success' ? (
                 <>
                   <div className="relative min-h-[420px] overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45">
                     <img
                       src={resultUrl ?? EXAMPLE_IMAGE}
-                      alt={
-                        displayStatus === 'success'
-                          ? prompt
-                          : 'Astronaut tending a glowing garden on the moon'
-                      }
+                      alt={prompt}
                       className="h-full min-h-[420px] w-full object-cover"
                     />
                   </div>
-                  {displayStatus === 'success' && (
-                    <div className="mt-5 flex flex-wrap gap-2">
-                      <a
-                        href={resultUrl ?? EXAMPLE_IMAGE}
-                        download="chat-to-image-result.png"
-                        className="chat-secondary-button"
-                      >
-                        <Download className="size-4" />
-                        {m['landing.chatImage.download']()}
-                      </a>
-                    </div>
-                  )}
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    <a
+                      href={resultUrl ?? EXAMPLE_IMAGE}
+                      download="chat-to-image-result.png"
+                      className="chat-secondary-button"
+                    >
+                      <Download className="size-4" />
+                      {m['landing.chatImage.download']()}
+                    </a>
+                  </div>
                 </>
+              ) : (
+                <IdleExamplesCarousel />
               )}
             </div>
             <p className="mt-5 text-center text-xs text-slate-500">
@@ -589,5 +602,111 @@ export function ChatToImageGenerator() {
         </div>
       </div>
     </section>
+  );
+}
+
+function IdleExamplesCarousel() {
+  const autoplay = useRef(
+    AutoPlay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true })
+  );
+  const [api, setApi] = useState<CarouselApi>();
+  const [selected, setSelected] = useState(0);
+
+  useEffect(() => {
+    if (!api) return;
+    const onSelect = () => setSelected(api.selectedScrollSnap());
+    api.on('select', onSelect);
+    onSelect();
+    return () => {
+      api.off('select', onSelect);
+    };
+  }, [api]);
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="mb-3 flex items-center justify-between">
+        <span className="chat-label">
+          <span className="chat-label-mark" />
+          {m['landing.chatImage.try_examples']()}
+        </span>
+      </div>
+      <Carousel
+        opts={{ loop: true }}
+        plugins={[autoplay.current]}
+        setApi={setApi}
+        className="flex min-h-0 w-full flex-1"
+      >
+        <CarouselContent className="-ml-0 h-full">
+          {PANEL_EXAMPLES.map((example) => {
+            const prompt = tDynamic(`landing.examples.${example.id}.prompt`);
+            const title = tDynamic(`landing.examples.${example.id}.title`);
+            return (
+              <CarouselItem key={example.id} className="pl-0">
+                <button
+                  type="button"
+                  onClick={() => requestPrompt(prompt)}
+                  className="group relative block h-full w-full overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 text-left"
+                >
+                  <img
+                    src={example.image}
+                    alt={title}
+                    className="h-full min-h-[360px] w-full object-contain"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/15 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5">
+                    <div className="min-w-0">
+                      <h3 className="text-lg font-semibold text-white">
+                        {title}
+                      </h3>
+                      <p className="mt-1 line-clamp-1 text-xs text-slate-300/80">
+                        {prompt}
+                      </p>
+                    </div>
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-amber-300/30 bg-slate-950/60 px-3 py-1.5 text-xs font-semibold text-amber-300 backdrop-blur transition group-hover:bg-amber-300 group-hover:text-slate-950">
+                      <WandSparkles className="size-3.5" />
+                      {m['landing.examples.try_prompt']()}
+                    </span>
+                  </div>
+                </button>
+              </CarouselItem>
+            );
+          })}
+        </CarouselContent>
+      </Carousel>
+      <div className="mt-4 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => api?.scrollPrev()}
+          aria-label="Previous example"
+          className="flex size-8 items-center justify-center rounded-full border border-white/10 bg-slate-950/60 text-slate-300 transition hover:border-amber-300/40 hover:text-amber-300"
+        >
+          <ChevronLeft className="size-4" />
+        </button>
+        <div className="flex items-center gap-1.5">
+          {PANEL_EXAMPLES.map((example, index) => (
+            <button
+              key={example.id}
+              type="button"
+              aria-label={`Example ${index + 1}`}
+              onClick={() => api?.scrollTo(index)}
+              className={cn(
+                'h-1.5 rounded-full transition-all',
+                index === selected
+                  ? 'w-5 bg-amber-300'
+                  : 'w-1.5 bg-white/25 hover:bg-white/50'
+              )}
+            />
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => api?.scrollNext()}
+          aria-label="Next example"
+          className="flex size-8 items-center justify-center rounded-full border border-white/10 bg-slate-950/60 text-slate-300 transition hover:border-amber-300/40 hover:text-amber-300"
+        >
+          <ChevronRight className="size-4" />
+        </button>
+      </div>
+    </div>
   );
 }
