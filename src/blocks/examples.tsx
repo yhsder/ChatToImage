@@ -27,19 +27,19 @@ const EXAMPLES = [
   { id: 5, image: '/generated/product.png', className: '', position: 'center' },
   {
     id: 6,
-    image: '/generated/moon-garden.png',
+    image: '/generated/night-orchard.png',
     className: '',
     position: 'right center',
   },
   {
     id: 7,
-    image: '/generated/nature.png',
+    image: '/generated/quiet-workspace.png',
     className: '',
     position: 'right bottom',
   },
   {
     id: 8,
-    image: '/generated/poster.png',
+    image: '/generated/city-in-the-clouds.png',
     className: '',
     position: 'left center',
   },
