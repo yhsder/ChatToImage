@@ -1,6 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from 'react';
 import AutoPlay from 'embla-carousel-autoplay';
 import {
   ArrowRight,
@@ -118,6 +124,8 @@ export function ChatToImageGenerator() {
   } | null>(null);
   const [showAuth, setShowAuth] = useState(false);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const formRef = useRef<HTMLDivElement | null>(null);
+  const [formHeight, setFormHeight] = useState(0);
 
   const {
     status: genStatus,
@@ -140,6 +148,16 @@ export function ChatToImageGenerator() {
 
   const isBusy = genStatus === 'loading';
   const canGenerate = prompt.trim().length > 0 && !isBusy;
+
+  useLayoutEffect(() => {
+    const el = formRef.current;
+    if (!el) return;
+    const sync = () => setFormHeight(el.getBoundingClientRect().height);
+    sync();
+    const observer = new ResizeObserver(sync);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const saved = sessionStorage.getItem('chat-to-image:generator');
@@ -258,8 +276,11 @@ export function ChatToImageGenerator() {
           </div>
         </div>
 
-        <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(330px,0.9fr)_minmax(0,1.1fr)] lg:gap-5">
-          <div className="chat-surface relative overflow-hidden p-4 sm:p-5">
+        <div className="mt-5 grid items-start gap-4 lg:grid-cols-[minmax(330px,0.9fr)_minmax(0,1.1fr)] lg:gap-5">
+          <div
+            ref={formRef}
+            className="chat-surface relative overflow-hidden p-4 sm:p-5"
+          >
             <div className="chat-surface-line" />
             <div className="relative z-10 space-y-5">
               <div>
@@ -529,11 +550,18 @@ export function ChatToImageGenerator() {
             </div>
           </div>
 
-          <div className="chat-surface relative flex min-h-[520px] flex-col overflow-hidden px-4 pt-4 pb-5 sm:px-6">
+          <div
+            className="chat-surface relative flex min-h-[420px] flex-col overflow-hidden px-4 pt-4 pb-5 sm:px-6 lg:h-[var(--form-h)] lg:min-h-0"
+            style={
+              formHeight
+                ? ({ '--form-h': `${formHeight}px` } as CSSProperties)
+                : undefined
+            }
+          >
             <div className="chat-surface-line" />
             <div className="relative flex min-h-0 flex-1 flex-col">
               {displayStatus === 'loading' ? (
-                <div className="flex min-h-[420px] flex-1 flex-col items-center justify-center rounded-2xl border border-white/10 bg-slate-950/45 p-6 text-center">
+                <div className="flex min-h-[280px] flex-1 flex-col items-center justify-center rounded-2xl border border-white/10 bg-slate-950/45 p-6 text-center lg:min-h-0">
                   <div className="flex size-14 items-center justify-center rounded-full border border-amber-300/20 bg-amber-300/10 text-amber-300">
                     <LoaderCircle className="size-6 animate-spin" />
                   </div>
@@ -545,7 +573,7 @@ export function ChatToImageGenerator() {
                   </p>
                 </div>
               ) : displayStatus === 'auth' ? (
-                <div className="flex min-h-[420px] flex-1 flex-col items-center justify-center rounded-2xl border border-amber-300/15 bg-amber-300/[0.04] p-6 text-center">
+                <div className="flex min-h-[280px] flex-1 flex-col items-center justify-center rounded-2xl border border-amber-300/15 bg-amber-300/[0.04] p-6 text-center lg:min-h-0">
                   <LockKeyhole className="size-8 text-amber-300" />
                   <h2 className="mt-5 text-lg font-semibold text-slate-100">
                     {m['landing.chatImage.auth_title']()}
@@ -555,7 +583,7 @@ export function ChatToImageGenerator() {
                   </p>
                 </div>
               ) : displayStatus === 'failed' ? (
-                <div className="flex min-h-[420px] flex-1 flex-col items-center justify-center rounded-2xl border border-red-300/15 bg-red-300/[0.04] p-6 text-center">
+                <div className="flex min-h-[280px] flex-1 flex-col items-center justify-center rounded-2xl border border-red-300/15 bg-red-300/[0.04] p-6 text-center lg:min-h-0">
                   <ImagePlus className="size-8 text-amber-300" />
                   <h2 className="mt-5 text-lg font-semibold text-slate-100">
                     {m['landing.chatImage.failure_title']()}
@@ -573,11 +601,11 @@ export function ChatToImageGenerator() {
                 </div>
               ) : displayStatus === 'success' ? (
                 <>
-                  <div className="relative min-h-[420px] overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45">
+                  <div className="relative min-h-[280px] flex-1 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 lg:min-h-0">
                     <img
                       src={resultUrl ?? EXAMPLE_IMAGE}
                       alt={prompt}
-                      className="h-full min-h-[420px] w-full object-cover"
+                      className="absolute inset-0 size-full object-cover"
                     />
                   </div>
                   <div className="mt-5 flex flex-wrap gap-2">
@@ -623,34 +651,31 @@ function IdleExamplesCarousel() {
   }, [api]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div className="mb-3 flex items-center justify-between">
-        <span className="chat-label">
-          <span className="chat-label-mark" />
-          {m['landing.chatImage.try_examples']()}
-        </span>
-      </div>
+    <div className="flex min-h-[360px] flex-1 flex-col lg:min-h-0">
       <Carousel
         opts={{ loop: true }}
         plugins={[autoplay.current]}
         setApi={setApi}
-        className="flex min-h-0 w-full flex-1"
+        className="h-full min-h-0 w-full flex-1 [&>[data-slot=carousel-content]]:size-full"
       >
-        <CarouselContent className="-ml-0 h-full">
+        <CarouselContent className="-ml-0 h-full items-stretch">
           {PANEL_EXAMPLES.map((example) => {
             const prompt = tDynamic(`landing.examples.${example.id}.prompt`);
             const title = tDynamic(`landing.examples.${example.id}.title`);
             return (
-              <CarouselItem key={example.id} className="pl-0">
+              <CarouselItem
+                key={example.id}
+                className="relative min-h-[320px] self-stretch pl-0 lg:min-h-0"
+              >
                 <button
                   type="button"
                   onClick={() => requestPrompt(prompt)}
-                  className="group relative block h-full w-full overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 text-left"
+                  className="group absolute inset-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 text-left"
                 >
                   <img
                     src={example.image}
                     alt={title}
-                    className="h-full min-h-[360px] w-full object-contain"
+                    className="size-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/15 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5">
