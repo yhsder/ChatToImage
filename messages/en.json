@@ -892,6 +892,8 @@
   "landing.chatImage.try_again": "Try Again",
   "landing.chatImage.prev_example": "Previous example",
   "landing.chatImage.next_example": "Next example",
+  "landing.chatImage.quick_try": "Quick try",
+  "landing.chatImage.see_all_examples": "See all 8 examples",
   "landing.examples.title": "See What You Can Create",
   "landing.examples.description": "Explore eight images made with this generator and see the exact prompt behind each one.",
   "landing.examples.tested_directions": "8 prompt-tested directions",

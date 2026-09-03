@@ -9,6 +9,7 @@ import {
 } from 'react';
 import AutoPlay from 'embla-carousel-autoplay';
 import {
+  ArrowDown,
   ArrowRight,
   Check,
   ChevronDown,
@@ -109,6 +110,13 @@ export function requestPrompt(prompt: string) {
     new CustomEvent('chat-to-image:prompt', { detail: prompt })
   );
   focusGenerator();
+}
+
+function scrollToExamples() {
+  document.querySelector('#examples')?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start',
+  });
 }
 
 export function ChatToImageGenerator() {
@@ -646,6 +654,19 @@ function IdleExamplesCarousel() {
 
   return (
     <div className="flex min-h-[360px] flex-1 flex-col lg:min-h-0">
+      <div className="mb-3 flex items-center justify-between">
+        <span className="chat-eyebrow">
+          {m['landing.chatImage.quick_try']()}
+        </span>
+        <button
+          type="button"
+          onClick={scrollToExamples}
+          className="inline-flex items-center gap-1 text-xs text-slate-400 transition hover:text-amber-300"
+        >
+          {m['landing.chatImage.see_all_examples']()}
+          <ArrowDown className="size-3.5" />
+        </button>
+      </div>
       <Carousel
         opts={{ loop: true }}
         plugins={[autoplay.current]}

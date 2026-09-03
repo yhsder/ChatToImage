@@ -892,6 +892,8 @@
   "landing.chatImage.try_again": "再次尝试",
   "landing.chatImage.prev_example": "上一个示例",
   "landing.chatImage.next_example": "下一个示例",
+  "landing.chatImage.quick_try": "先试一条",
+  "landing.chatImage.see_all_examples": "查看全部 8 个示例",
   "landing.examples.title": "看看你可以创作什么",
   "landing.examples.description": "浏览 8 张由生成器制作的图片，并查看每张图背后的完整提示词。",
   "landing.examples.tested_directions": "8 个经过提示词测试的方向",
