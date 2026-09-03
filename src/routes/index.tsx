@@ -12,6 +12,7 @@ import { Header } from '@/blocks/header';
 import { Hero } from '@/blocks/hero';
 import { HowItWorks } from '@/blocks/how-it-works';
 import { Pricing } from '@/blocks/pricing';
+import { Transformations } from '@/blocks/transformations';
 
 function HomePage() {
   return (
@@ -20,6 +21,7 @@ function HomePage() {
       <main>
         <Hero />
         <Examples />
+        <Transformations />
         <HowItWorks />
         <Benefits />
         <Pricing />
