@@ -45,9 +45,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-export const EXAMPLE_PROMPT =
-  'A tiny astronaut tending a glowing garden on the moon, cinematic lighting, detailed digital art';
-
 const EXAMPLE_IMAGE = '/generated/moon-garden.png';
 
 // Showcase examples shown in the idle result panel before the first generation.
@@ -411,14 +408,6 @@ export function ChatToImageGenerator() {
                     <span className="chat-label-mark" />
                     {m['landing.chatImage.prompt_label']()}
                   </label>
-                  <button
-                    type="button"
-                    onClick={() => requestPrompt(EXAMPLE_PROMPT)}
-                    className="inline-flex items-center gap-1.5 text-xs text-slate-400 transition hover:text-amber-300"
-                  >
-                    <WandSparkles className="size-3.5 text-amber-300/80" />
-                    {m['landing.chatImage.try_examples']()}
-                  </button>
                 </div>
                 <textarea
                   id="image-prompt"

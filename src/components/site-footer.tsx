@@ -3,8 +3,6 @@ import type { ComponentType, SVGProps } from 'react';
 import { Link } from '@/core/i18n/navigation';
 import { envConfigs } from '@/config';
 import { cn } from '@/lib/utils';
-import { BuiltWithShipAny } from '@/components/built-with-shipany';
-import { LocaleSelector } from '@/components/locale-selector';
 
 export interface FooterColumn {
   title: string;
@@ -88,35 +86,26 @@ export function SiteFooter({
           </div>
         )}
 
-        {/* Socials + language row */}
-        <div className="mt-8 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-          {socials && socials.length > 0 ? (
-            <div className="flex items-center gap-5">
-              {socials.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  aria-label={s.label}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-neutral-300 transition-colors hover:text-neutral-100"
-                >
-                  <s.icon className="size-[18px]" />
-                </a>
-              ))}
-            </div>
-          ) : (
-            <div />
-          )}
-          <LocaleSelector
-            variant="pill"
-            className="border-neutral-700 text-neutral-200 hover:bg-white/5 hover:text-neutral-50"
-          />
-        </div>
+        {/* Socials row */}
+        {socials && socials.length > 0 && (
+          <div className="mt-8 flex items-center gap-5">
+            {socials.map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                aria-label={s.label}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-neutral-300 transition-colors hover:text-neutral-100"
+              >
+                <s.icon className="size-[18px]" />
+              </a>
+            ))}
+          </div>
+        )}
 
         {/* Bottom bar */}
         <div className="mt-6 flex flex-col gap-3 border-t border-neutral-800 pt-5 sm:flex-row sm:items-center sm:justify-between">
-          <BuiltWithShipAny />
           <span className="text-sm text-neutral-400">
             {copyright ||
               `© ${year} ${envConfigs.app_name}. All rights reserved.`}
