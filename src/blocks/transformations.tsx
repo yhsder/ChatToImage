@@ -3,25 +3,19 @@ import { Check } from 'lucide-react';
 
 import { tDynamic } from '@/core/i18n/dynamic';
 import { m } from '@/paraglide/messages.js';
-import { focusChatToImageGenerator } from '@/components/chat-to-image-generator';
+import { requestPrompt } from '@/components/chat-to-image-generator';
 
-// Each case shows a before/after pair via the drag slider. Asset paths follow
-// the convention /generated/transformations/<id>-before.png and <id>-after.png.
+// Each workflow shows a matched before/after pair via the drag slider.
 const TRANSFORMATIONS = [
-  'figurine',
-  'anime',
-  'restore',
-  'background',
-  'age',
-  'outfit',
+  'product',
+  'headshot',
+  'interior',
+  'sketch',
+  'campaign',
+  'illustration',
 ] as const;
 
 const FEATURES = [1, 2, 3] as const;
-
-// Placeholder images so the section renders before real before/after assets
-// exist. Swap back to `/generated/transformations/${id}-${side}.png` later.
-const placeholder = (id: string, side: 'before' | 'after') =>
-  `https://picsum.photos/seed/${id}-${side}/800/600`;
 
 export function Transformations() {
   return (
@@ -50,6 +44,7 @@ export function Transformations() {
             const description = tDynamic(
               `landing.transformations.${id}.description`
             );
+            const prompt = tDynamic(`landing.transformations.${id}.prompt`);
             // Alternate the image column: even index = image left, odd = right.
             const flip = index % 2 === 1;
             return (
@@ -85,7 +80,7 @@ export function Transformations() {
                   <div className="pt-4">
                     <button
                       type="button"
-                      onClick={focusChatToImageGenerator}
+                      onClick={() => requestPrompt(prompt)}
                       className="chat-primary-button min-h-11 px-5"
                     >
                       {m['landing.transformations.try']()} {title}
@@ -101,15 +96,21 @@ export function Transformations() {
                     >
                       <img
                         slot="first"
-                        src={placeholder(id, 'before')}
+                        src={`/generated/transformations/${id}-before.webp`}
                         alt={m['landing.transformations.before']()}
                         className="h-full w-full object-cover"
+                        loading="lazy"
+                        width={800}
+                        height={600}
                       />
                       <img
                         slot="second"
-                        src={placeholder(id, 'after')}
+                        src={`/generated/transformations/${id}-after.webp`}
                         alt={m['landing.transformations.after']()}
                         className="h-full w-full object-cover"
+                        loading="lazy"
+                        width={800}
+                        height={600}
                       />
                     </ImgComparisonSlider>
                   </div>
