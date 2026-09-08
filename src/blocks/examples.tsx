@@ -7,41 +7,51 @@ import { requestPrompt } from '@/components/chat-to-image-generator';
 const EXAMPLES = [
   {
     id: 1,
-    image: '/generated/moon-garden.png',
+    image: '/generated/use-cases/ecommerce-product.webp',
     className: 'md:col-span-2 md:row-span-2',
     position: 'center',
   },
   {
     id: 2,
-    image: '/generated/portrait.png',
+    image: '/generated/use-cases/lifestyle-product.webp',
     className: '',
-    position: 'center top',
+    position: 'center',
   },
   {
     id: 3,
-    image: '/generated/nature.png',
+    image: '/generated/use-cases/social-ad.webp',
     className: '',
-    position: 'left center',
+    position: 'center',
   },
-  { id: 4, image: '/generated/poster.png', className: '', position: 'center' },
-  { id: 5, image: '/generated/product.png', className: '', position: 'center' },
+  {
+    id: 4,
+    image: '/generated/use-cases/video-thumbnail.webp',
+    className: '',
+    position: 'center',
+  },
+  {
+    id: 5,
+    image: '/generated/use-cases/blog-hero.webp',
+    className: '',
+    position: 'center',
+  },
   {
     id: 6,
-    image: '/generated/night-orchard.png',
+    image: '/generated/use-cases/local-promo.webp',
     className: '',
-    position: 'right center',
+    position: 'center',
   },
   {
     id: 7,
-    image: '/generated/quiet-workspace.png',
+    image: '/generated/use-cases/interior-preview.webp',
     className: '',
-    position: 'right bottom',
+    position: 'center',
   },
   {
     id: 8,
-    image: '/generated/city-in-the-clouds.png',
-    className: '',
-    position: 'left center',
+    image: '/generated/use-cases/game-character.webp',
+    className: 'md:col-span-2',
+    position: 'center',
   },
 ] as const;
 
@@ -70,6 +80,7 @@ export function Examples() {
         <div className="grid auto-rows-[210px] gap-3 sm:auto-rows-[220px] sm:grid-cols-2 lg:grid-cols-4">
           {EXAMPLES.map((example) => {
             const prompt = tDynamic(`landing.examples.${example.id}.prompt`);
+            const title = tDynamic(`landing.examples.${example.id}.title`);
             return (
               <article
                 key={example.id}
@@ -77,28 +88,23 @@ export function Examples() {
               >
                 <img
                   src={example.image}
-                  alt={tDynamic(`landing.examples.${example.id}.title`)}
+                  alt={title}
                   className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
                   style={{ objectPosition: example.position }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/25 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/35 to-transparent" />
                 <div className="relative flex h-full flex-col justify-end p-4">
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-[10px] font-semibold tracking-[0.15em] text-amber-300 uppercase">
-                      {tDynamic(
-                        `landing.examples.${example.id === 1 ? 'complex_scene' : ['portrait', 'nature', 'poster', 'product', 'fantasy', 'interior', 'illustration'][example.id - 2]}`
-                      )}
+                      {tDynamic(`landing.examples.${example.id}.category`)}
                     </span>
                     <ArrowUpRight className="size-4 text-slate-300 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </div>
                   <h3 className="mt-2 text-base font-bold text-white sm:text-lg">
-                    {tDynamic(`landing.examples.${example.id}.title`)}
+                    {title}
                   </h3>
-                  <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-300/80">
-                    <span className="font-medium text-slate-200">
-                      {m['landing.examples.prompt_used']()}:{' '}
-                    </span>
-                    {prompt}
+                  <p className="mt-1 text-xs leading-5 text-slate-300/80">
+                    {tDynamic(`landing.examples.${example.id}.outcome`)}
                   </p>
                   <button
                     type="button"

@@ -45,14 +45,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-const EXAMPLE_IMAGE = '/generated/moon-garden.png';
+const EXAMPLE_IMAGE = '/generated/use-cases/ecommerce-product.webp';
 
 // Showcase examples shown in the idle result panel before the first generation.
 const PANEL_EXAMPLES = [
-  { id: 1, image: '/generated/moon-garden.png' },
-  { id: 2, image: '/generated/portrait.png' },
-  { id: 3, image: '/generated/nature.png' },
-  { id: 4, image: '/generated/poster.png' },
+  { id: 1, image: '/generated/use-cases/ecommerce-product.webp' },
+  { id: 2, image: '/generated/use-cases/lifestyle-product.webp' },
+  { id: 3, image: '/generated/use-cases/social-ad.webp' },
+  { id: 4, image: '/generated/use-cases/video-thumbnail.webp' },
 ] as const;
 
 type GeneratorStatus = 'example' | 'auth' | 'loading' | 'success' | 'failed';
