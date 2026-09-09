@@ -1074,8 +1074,9 @@
   "landing.finalCta.description": "描述你的想法，用免费 credits 生成第一张图片，然后下载满意的结果。",
   "landing.finalCta.button": "生成我的图片",
   "landing.finalCta.helper": "不知道写什么？从上面的示例提示词开始。",
-  "landing.footer.brand_line": "把自然语言想法变成可下载的 AI 图片。",
+  "landing.footer.brand_line": "ChatToImage 是一款 AI 图片生成器。用文字提示词精确生成图片、切换风格，并在几秒内得到稳定、高质量的结果。现在就在线试试。",
   "landing.footer.product_links": "产品",
   "landing.footer.account": "账号",
+  "landing.footer.company": "公司",
   "landing.footer.copyright": "版权所有。"
 }

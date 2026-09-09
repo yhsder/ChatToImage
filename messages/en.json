@@ -1074,8 +1074,9 @@
   "landing.finalCta.description": "Describe your idea, generate your first image with free credits, and download the result you like.",
   "landing.finalCta.button": "Generate My Image",
   "landing.finalCta.helper": "Not sure what to write? Start with one of the prompts above.",
-  "landing.footer.brand_line": "Turn plain-language ideas into downloadable AI images.",
-  "landing.footer.product_links": "Product",
+  "landing.footer.brand_line": "ChatToImage is an AI image generator. Use text prompts for precise images, style changes, and consistent, high-quality results in seconds. Try it online now.",
+  "landing.footer.product_links": "Products",
   "landing.footer.account": "Account",
+  "landing.footer.company": "Company",
   "landing.footer.copyright": "All rights reserved."
 }
