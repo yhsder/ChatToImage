@@ -99,6 +99,10 @@ All admin pages include:
 | `pnpm rbac:init`   | Create roles + permissions + optional admin user |
 | `pnpm rbac:assign` | Assign role to user                              |
 
+## Documentation
+
+- [ChatToImage V1 定价策略](./docs/pricing-strategy.md) — 待实施的订阅、积分包、模型扣费和成本测算基准
+
 ## Claude Code Skills
 
 | Skill              | What it does                                        |
