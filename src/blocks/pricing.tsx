@@ -29,7 +29,8 @@ export function Pricing() {
 
         <div className="grid gap-3 lg:grid-cols-3">
           {PLANS.map(({ key, icon: Icon, accent }) => (
-            <article
+            <Link
+              href="/pricing"
               key={key}
               className={`chat-surface flex min-h-56 flex-col p-5 sm:p-6 ${accent ? 'border-amber-300/45 shadow-[0_12px_32px_rgba(250,204,66,0.08)]' : ''}`}
             >
@@ -55,7 +56,7 @@ export function Pricing() {
                   ? m['landing.compactPricing.no_payment']()
                   : m['landing.compactPricing.clear_pricing']()}
               </div>
-            </article>
+            </Link>
           ))}
         </div>
 

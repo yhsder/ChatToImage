@@ -2,6 +2,7 @@ import { and, asc, desc, eq, gt, isNull, or, sql, sum } from 'drizzle-orm';
 
 import { db } from '@/core/db';
 import { credit } from '@/config/db/schema';
+import { FREE_TRIAL } from '@/config/image-credits';
 import { getSnowId, getUuid } from '@/lib/hash';
 
 // --- Enums ---
@@ -263,12 +264,15 @@ export async function grantForNewUser(params: {
 }) {
   const { userId, userEmail, configs } = params;
 
-  if (configs.initial_credits_enabled !== 'true') return;
+  if (configs.initial_credits_enabled === 'false') return;
 
-  const credits = parseInt(configs.initial_credits_amount) || 0;
+  const credits =
+    parseInt(configs.initial_credits_amount || String(FREE_TRIAL.credits)) || 0;
   if (credits <= 0) return;
 
-  const validDays = parseInt(configs.initial_credits_valid_days) || 0;
+  const validDays =
+    parseInt(configs.initial_credits_valid_days || String(FREE_TRIAL.days)) ||
+    0;
   const description = configs.initial_credits_description || 'Initial credits';
 
   const expiresAt = calculateCreditExpirationTime({

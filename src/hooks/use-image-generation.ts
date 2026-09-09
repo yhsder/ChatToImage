@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { apiGet, apiPost, apiUpload } from '@/lib/api-client';
+import { getImageCreditCost } from '@/config/image-credits';
+import { ApiError, apiGet, apiPost, apiUpload } from '@/lib/api-client';
 
 export type GenerationStatus = 'idle' | 'loading' | 'success' | 'failed';
 
@@ -57,6 +58,7 @@ async function pollImageResult(
 export function useImageGeneration() {
   const [status, setStatus] = useState<GenerationStatus>('idle');
   const [resultUrl, setResultUrl] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
   const lastInputRef = useRef<GenerateImageInput | null>(null);
 
@@ -68,8 +70,15 @@ export function useImageGeneration() {
 
     setStatus('loading');
     setResultUrl(null);
+    setErrorCode(null);
 
     try {
+      const cost = getImageCreditCost(input.model, input.quality);
+      const { balance } = await apiGet<{ balance: number }>('/api/credits');
+      if (balance < cost) {
+        throw new ApiError(-1, 'Insufficient credits');
+      }
+
       const imageUrl = input.image ? await uploadImageFile(input.image) : '';
       const { taskId } = await apiPost<{ taskId: string }>('/api/ai/image', {
         prompt: input.prompt,
@@ -85,6 +94,12 @@ export function useImageGeneration() {
     } catch (error) {
       if (controller.signal.aborted) return;
       console.error('generate image failed:', error);
+      const message = error instanceof ApiError ? error.message : '';
+      setErrorCode(
+        message.toLowerCase().includes('insufficient credits')
+          ? 'insufficient'
+          : 'failed'
+      );
       setStatus('failed');
     }
   }, []);
@@ -99,11 +114,12 @@ export function useImageGeneration() {
     lastInputRef.current = null;
     setStatus('idle');
     setResultUrl(null);
+    setErrorCode(null);
   }, []);
 
   useEffect(() => {
     return () => controllerRef.current?.abort();
   }, []);
 
-  return { status, resultUrl, generate, retry, reset };
+  return { status, resultUrl, errorCode, generate, retry, reset };
 }

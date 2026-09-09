@@ -13,7 +13,7 @@ import { SiteUserMenu } from '@/components/site-user-menu';
 const navLinks = [
   { href: '/#examples', label: 'landing.nav.examples' },
   { href: '/#how-it-works', label: 'landing.nav.how_it_works' },
-  { href: '/#pricing', label: 'landing.nav.pricing' },
+  { href: '/pricing', label: 'landing.nav.pricing' },
   { href: '/#faq', label: 'landing.nav.faq' },
 ] as const;
 

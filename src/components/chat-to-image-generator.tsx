@@ -29,6 +29,10 @@ import {
 import { useSession } from '@/core/auth/client';
 import { tDynamic } from '@/core/i18n/dynamic';
 import { Link } from '@/core/i18n/navigation';
+import {
+  getImageCreditCost,
+  QUALITY_TO_RESOLUTION,
+} from '@/config/image-credits';
 import { cn } from '@/lib/utils';
 import { m } from '@/paraglide/messages.js';
 import { useImageGeneration } from '@/hooks/use-image-generation';
@@ -135,10 +139,12 @@ export function ChatToImageGenerator() {
   const {
     status: genStatus,
     resultUrl,
+    errorCode,
     generate,
     retry,
     reset,
   } = useImageGeneration();
+  const costCredits = getImageCreditCost(modelId, quality);
 
   const selectedModel =
     MODELS.find((model) => model.id === modelId) ?? MODELS[0];
@@ -478,7 +484,7 @@ export function ChatToImageGenerator() {
                     {m['landing.chatImage.quality']()}
                   </span>
                   <span className="text-xs text-slate-500">
-                    {m['landing.chatImage.credits']({ count: 5 })}
+                    {m['landing.chatImage.credits']({ count: costCredits })}
                   </span>
                 </div>
                 <div className="flex gap-2">
@@ -492,7 +498,8 @@ export function ChatToImageGenerator() {
                         quality === item.label && 'is-selected'
                       )}
                     >
-                      {tDynamic(item.message)}
+                      {tDynamic(item.message)} ·{' '}
+                      {QUALITY_TO_RESOLUTION[item.label]}
                     </button>
                   ))}
                 </div>
@@ -536,6 +543,9 @@ export function ChatToImageGenerator() {
                     <Zap className="size-4" />
                   )}
                   <span>{m['landing.chatImage.generate_my_image']()}</span>
+                  <span className="text-slate-950/70">
+                    · {m['landing.chatImage.credits']({ count: costCredits })}
+                  </span>
                 </button>
                 <p className="mt-2 text-center text-xs text-slate-500">
                   {m['landing.chatImage.failure_reassurance']()}
@@ -580,18 +590,32 @@ export function ChatToImageGenerator() {
                 <div className="flex min-h-[280px] flex-1 flex-col items-center justify-center rounded-2xl border border-red-300/15 bg-red-300/[0.04] p-6 text-center lg:min-h-0">
                   <ImagePlus className="size-8 text-amber-300" />
                   <h2 className="mt-5 text-lg font-semibold text-slate-100">
-                    {m['landing.chatImage.failure_title']()}
+                    {errorCode === 'insufficient'
+                      ? m['landing.chatImage.insufficient_credits']()
+                      : m['landing.chatImage.failure_title']()}
                   </h2>
-                  <p className="mt-2 max-w-sm text-sm leading-6 text-slate-400">
-                    {m['landing.chatImage.failure_message']()}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={handleRetry}
-                    className="chat-secondary-button mt-5"
-                  >
-                    {m['landing.chatImage.try_again']()}
-                  </button>
+                  {errorCode !== 'insufficient' && (
+                    <p className="mt-2 max-w-sm text-sm leading-6 text-slate-400">
+                      {m['landing.chatImage.failure_message']()}
+                    </p>
+                  )}
+                  {errorCode === 'insufficient' ? (
+                    <Link
+                      href="/pricing"
+                      className="chat-secondary-button mt-5"
+                    >
+                      {m['landing.chatImage.buy_credits']()}
+                      <ArrowRight className="size-4" />
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleRetry}
+                      className="chat-secondary-button mt-5"
+                    >
+                      {m['landing.chatImage.try_again']()}
+                    </button>
+                  )}
                 </div>
               ) : displayStatus === 'success' ? (
                 <>

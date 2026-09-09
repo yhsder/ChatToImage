@@ -8,6 +8,10 @@ import {
   type SaveFilesFunction,
 } from '@/core/ai';
 import {
+  getImageCreditCost,
+  QUALITY_TO_RESOLUTION,
+} from '@/config/image-credits';
+import {
   createTask,
   findTask,
   getTasks,
@@ -74,16 +78,6 @@ export async function getAiManager(): Promise<AIManager> {
   }
   return aiManager;
 }
-
-// Flat cost for every image generation (quality maps to resolution, not price).
-const IMAGE_COST_CREDITS = 5;
-
-// quality → KIE resolution. Both supported image models accept 1K/2K/4K.
-const QUALITY_TO_RESOLUTION: Record<string, string> = {
-  standard: '1K',
-  medium: '2K',
-  high: '4K',
-};
 
 export interface SubmitImageInput {
   userId: string;
@@ -154,6 +148,7 @@ export async function submitImage(input: SubmitImageInput): Promise<{
       : model;
 
   const resolution = QUALITY_TO_RESOLUTION[quality] ?? '1K';
+  const costCredits = getImageCreditCost(actualModel, resolution);
 
   const manager = await getAiManager();
   const kie = manager.getProvider('kie');
@@ -165,7 +160,7 @@ export async function submitImage(input: SubmitImageInput): Promise<{
     provider: 'kie',
     model: actualModel,
     prompt,
-    costCredits: IMAGE_COST_CREDITS,
+    costCredits,
   });
 
   try {

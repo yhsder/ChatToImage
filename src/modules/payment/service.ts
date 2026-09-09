@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, gt, inArray, isNull } from 'drizzle-orm';
 
 import { db } from '@/core/db';
 import {
@@ -18,7 +18,12 @@ import {
 } from '@/core/payment/types';
 import { credit, order, subscription } from '@/config/db/schema';
 import { getAllConfigs } from '@/modules/config/service';
-import { calculateCreditExpirationTime } from '@/modules/credits/service';
+import {
+  calculateCreditExpirationTime,
+  CreditStatus,
+  CreditTransactionScene,
+  CreditTransactionType,
+} from '@/modules/credits/service';
 import {
   findByProviderSubscriptionId,
   findBySubscriptionNo,
@@ -468,6 +473,24 @@ export async function handleSubscriptionRenewal(
         currentPeriodEnd: subscriptionInfo.currentPeriodEnd,
       })
       .where(eq(subscription.subscriptionNo, existingSub.subscriptionNo));
+
+    // Extend leftover subscription Grants so unused Credits roll over.
+    await tx
+      .update(credit)
+      .set({ expiresAt: subscriptionInfo.currentPeriodEnd })
+      .where(
+        and(
+          eq(credit.userId, existingSub.userId),
+          eq(credit.subscriptionNo, existingSub.subscriptionNo),
+          eq(credit.transactionType, CreditTransactionType.GRANT),
+          inArray(credit.transactionScene, [
+            CreditTransactionScene.SUBSCRIPTION,
+            CreditTransactionScene.RENEWAL,
+          ]),
+          eq(credit.status, CreditStatus.ACTIVE),
+          gt(credit.remainingCredits, 0)
+        )
+      );
 
     // 2. Create renewal order
     await tx.insert(order).values({
