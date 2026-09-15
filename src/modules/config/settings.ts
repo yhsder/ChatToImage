@@ -192,6 +192,13 @@ export function getSettingGroups(): SettingGroup[] {
       description: 'Inject plausible.js for self-hosted or cloud Plausible',
       tab: 'analytics',
     },
+    {
+      name: 'clarity',
+      title: 'Microsoft Clarity',
+      description:
+        'Inject the Clarity tracking script with the configured Project ID',
+      tab: 'analytics',
+    },
 
     // Ads
     {
@@ -872,6 +879,17 @@ export function getSettings(): Setting[] {
       placeholder: 'https://plausible.example.com/js/pa-XXXXX.js',
       tip: 'Paste the complete site-specific script URL from Plausible, or leave blank to use the legacy cloud script',
       group: 'plausible',
+      tab: 'analytics',
+    },
+
+    // ─── Analytics / Microsoft Clarity ───────────────────────────────
+    {
+      name: 'clarity_project_id',
+      title: 'Project ID',
+      type: 'text',
+      placeholder: 'vdh7g6e1p1',
+      tip: '10-character Clarity project id from Settings → Setup',
+      group: 'clarity',
       tab: 'analytics',
     },
 

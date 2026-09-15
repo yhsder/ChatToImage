@@ -16,6 +16,7 @@ import { envConfigs } from '@/config';
 import { getQueryClient } from '@/lib/query-client';
 import { getLocale, locales, localizeUrl } from '@/paraglide/runtime.js';
 import { Ads } from '@/components/analytics/ads';
+import { Clarity } from '@/components/analytics/clarity';
 import { GoogleAnalytics } from '@/components/analytics/google-analytics';
 import { Plausible } from '@/components/analytics/plausible';
 import { CustomerService } from '@/components/customer-service';
@@ -33,6 +34,7 @@ const getAnalyticsConfigs = createServerFn().handler(async () => {
   const configs = await getAllConfigs();
   return {
     gaId: configs.google_analytics_id?.trim() || '',
+    clarityId: configs.clarity_project_id?.trim() || '',
     plausibleDomain: configs.plausible_domain?.trim() || '',
     plausibleSrc: configs.plausible_src?.trim() || '',
     adsenseCode: configs.adsense_code?.trim() || '',
@@ -104,6 +106,9 @@ function RootComponent() {
         <GoogleOneTap />
         {analytics?.gaId ? (
           <GoogleAnalytics measurementId={analytics.gaId} />
+        ) : null}
+        {analytics?.clarityId ? (
+          <Clarity projectId={analytics.clarityId} />
         ) : null}
         {analytics?.plausibleDomain || analytics?.plausibleSrc ? (
           <Plausible
