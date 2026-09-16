@@ -26,9 +26,7 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0b101e]/85 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2.5">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-amber-300 font-black text-slate-950 shadow-[0_0_0_1px_rgba(250,204,66,0.25)]">
-            C
-          </span>
+          <img src={envConfigs.app_logo} alt="" className="size-8 rounded-lg" />
           <span className="text-sm font-bold tracking-tight text-slate-100">
             {envConfigs.app_name}
           </span>

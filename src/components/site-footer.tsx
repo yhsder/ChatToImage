@@ -86,9 +86,11 @@ export function SiteFooter({
                 title={name}
                 className="flex items-center space-x-2 font-bold"
               >
-                <span className="flex size-8 items-center justify-center rounded-lg bg-amber-300 font-black text-slate-950 shadow-[0_0_0_1px_rgba(250,204,66,0.25)]">
-                  C
-                </span>
+                <img
+                  src={envConfigs.app_logo}
+                  alt=""
+                  className="size-8 rounded-lg"
+                />
                 <h3 className="mb-0 text-lg font-bold tracking-tight text-slate-50">
                   {name}
                 </h3>
