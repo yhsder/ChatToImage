@@ -687,7 +687,7 @@ function IdleExamplesCarousel() {
         className="h-full min-h-0 w-full flex-1 [&>[data-slot=carousel-content]]:size-full"
       >
         <CarouselContent className="-ml-0 h-full items-stretch">
-          {PANEL_EXAMPLES.map((example) => {
+          {PANEL_EXAMPLES.map((example, index) => {
             const prompt = tDynamic(`landing.examples.${example.id}.prompt`);
             const title = tDynamic(`landing.examples.${example.id}.title`);
             return (
@@ -703,6 +703,8 @@ function IdleExamplesCarousel() {
                   <img
                     src={example.image}
                     alt={title}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    decoding="async"
                     className="size-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/15 to-transparent" />

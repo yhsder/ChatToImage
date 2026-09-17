@@ -89,6 +89,8 @@ export function Examples() {
                 <img
                   src={example.image}
                   alt={title}
+                  loading="lazy"
+                  decoding="async"
                   className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
                   style={{ objectPosition: example.position }}
                 />
